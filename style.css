@@ -1,0 +1,203 @@
+	#content {
+	  width: 560px;
+	  margin: 0 auto;
+	  font-family: Verdana, Arial, Helvetica, sans-serif;
+	  font-size: 12px;
+	  line-height: 1.6em;
+	  color: #666666;
+	  background-color: #FFFFFF;
+	  }
+	  
+		
+	h1 {
+	  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	  font-weight: normal;
+	  font-size: 32px;
+	  color: #6DA6E2;
+	  margin-bottom: 30px;
+	  background-color: #FFFFFF;
+	  }
+		
+	h2 {
+	  color: #666666;
+	  font-size: 16px;
+	  font-family: Arial, Helvetica, sans-serif;
+	  background-color: #FFFFFF;
+	  }
+		
+	a {
+	  color: #B28F6B;
+	  background-color: #FFFFFF;
+	  text-decoration: none;
+	  font-weight: bold;
+	  }
+
+	a:hover {
+	  background-color: #FFFFFF;
+	  color: inherit;
+	  font-weight: bold;
+	  text-decoration: underline;
+	  }
+
+/**************** bibliography style **********/
+  .bib {
+    margin-left: 1em;
+    text-indent:-1em;
+  }
+  .bib span.me {
+    font-weight: bold;
+  }
+  
+  .bib span.journal {
+    font-style: italic;
+  }
+	.bib a{
+	    color: #00F;
+	    font-weight: normal;
+	}
+	.bib a:hover{
+	    
+	}
+	
+	.bib me {
+	  
+	}
+
+
+/**************** images styles ****************/		
+	a img{
+	  border: none;
+	  }
+
+	img.left,img.center,img.right {
+	  padding: 4px;
+	  border: 1px solid #a0a0a0;
+	  }
+
+	img.left {
+	  float: left;
+	  margin: 0 12px 5px 0;
+	  }
+
+	img.center {
+	  display: block;
+	  margin: 0 auto 5px auto;
+	  }
+
+	img.right {
+	  float: right;
+	  margin: 0 0 5px 12px;
+	  }
+
+/**************** header styles ****************/
+	#header {
+	  width: 100%
+	  border: 0px
+	  padding-bottom: 10px;
+	  padding-top: 10px;
+	  clear: both;
+	  }
+	#header p { 
+	  margin-top: -20px;
+	  margin-left: 30px;
+	  color: #999999;
+	  }
+
+/**************** content styles ****************/
+	.section {
+	  width: 100%;
+	  /*padding-left: 10px;
+	  padding-right: 10px;*/
+	  padding-top: 5px;
+	  margin-bottom: 25px;
+	  float: left;
+	  }
+		
+	.section p {
+	    margin-top: 0px;
+	  /* padding-bottom: 10px; */
+	  /* border-bottom: 1px solid #DDDDDD; */
+	  }
+
+	#clear {
+	    clear: both;
+	}
+	
+
+/**************** footer styles ****************/
+	#footer {
+	  margin-top: 15px;
+	  padding-top: 0px;
+	  padding-bottom: 0px;
+	  padding-left: 2px;
+	  padding-right: 2px;
+	  clear: both;
+	  width: 742px;
+	  background-color:#2763A5;
+	  }
+		
+	#footer p {
+	  color:#FFFFFF;
+	  padding: 5px;
+	  text-align: center;
+	  }
+		
+	#footer p a {
+	  color: #FFFFFF;
+	  background-color:#2763A5;
+	  font-weight:100;
+	  border-bottom: 1px dotted #FFFFFF;
+	  }
+		
+	#footer p a:hover {
+	  color: #FFFFFF;
+	  text-decoration: none;
+	  border-top: 1px dotted #FFFFFF;
+	  border-bottom: 0px dotted #FFFFFF;
+	  }
+	  
+/**************** menu bar lavalamp ************/
+    .menuBar{
+        position: relative;
+        height: 29px;
+        width: 100%;
+        background-color: white;
+        padding: 0px;
+        margin: 0px 0;
+        overflow: hidden;}
+    .menuBar li {
+        float: left;
+        list-style: none;
+        margin-right: 15px;
+        padding: 0px;}
+    .menuBar li.back {
+        border-bottom: 4px solid #B28F6B;
+        top: 22px;
+        /*width: 9px;
+        height: 30px;*/
+        /*z-index: 8;*/
+        z-index: 0;
+        padding:0px;
+        position: absolute;
+        margin-right:10px}
+    .menuBar li a {
+        font: 14px "Trebuchet MS";
+        color: #666666;
+        text-decoration: none;        
+        outline: none;
+        text-align: center;
+        top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 10;
+        display: block;
+        float: left;
+        /*height: 14px;*/
+        position: relative;
+        overflow: hidden;
+        margin: auto 0px;}
+    .menuBar li a.current {color:#333333;}   
+    .menuBar li a:hover, .menuBar li a:active {
+        border: none; 
+        color:#333333;}
+    
