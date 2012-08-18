@@ -2,12 +2,15 @@
 <html>
 <head>
     <link href='style.css' rel='stylesheet' type='text/css'>
-    <title>I have a back bone</title>
+    <title>Robert McGibbon</title>
 </head>
 <body>
 
 <div id="content">
-<div class="section", id="header"></div>
+<div class='section'>
+  <img src='banner560.png' width='100%' />
+  <div class="section", id="header"></div>
+<div class='section'>
 <div class="section", id="body"></div>
 <div class="section", id="footer"></div>
 </div>
@@ -59,24 +62,22 @@
 
 <!--START    HEADER-->
 <script type='text/template' id="_header">
-  <img src='banner560.png' width='100%' />
-  <div class='section'>
-    <ul class='menuBar'>
-      <li class=<%= active=='home'?'current':'' %>>
-        <a href='#home'>Robert T. McGibbon</a>
-      </li>
-      <li class=<%= active=='research'?'current':''%>>
-        <a href='#research'>Research</a>
-      </li>
-      <li class=<%= active=='publications'?'current':''%>>
-        <a href='#publications'>Publications</a>
-      </li>
-      <li class=<%= active=='teaching'?'current':''%>>
-        <a href='#teaching'>Teaching</a>
-      </li>
-      <li> <a href='msmbuilder/index.html'>MSMBuilder</a> </li>
-    </ul>
-  </div>
+  <ul class='menuBar'>
+    <li class=<%= active=='home'?'current':'' %>>
+      <a href='#home'>Robert T. McGibbon</a>
+    </li>
+    <li class=<%= active=='research'?'current':''%>>
+      <a href='#research'>Research</a>
+    </li>
+    <li class=<%= active=='publications'?'current':''%>>
+      <a href='#publications'>Publications</a>
+    </li>
+    <li class=<%= active=='teaching'?'current':''%>>
+      <a href='#teaching'>Teaching</a>
+    </li>
+    <li>
+      <a href='msmbuilder/index.html'>MSMBuilder</a> </li>
+  </ul>
 </script>
 <!--END     HEADER-->
 
