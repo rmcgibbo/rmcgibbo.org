@@ -36,6 +36,7 @@ padding: .2em .2em;
 color: #fff;
 }
 
+
 #content {
   width: 600px;
   margin: 0 auto;
@@ -65,7 +66,7 @@ h2 {
 	
 a {
   color: #B28F6B;
-  background-color: #FFFFFF;
+/*  background-color: #FFFFFF;*/
   text-decoration: none;
   font-weight: bold;
   }
@@ -84,7 +85,7 @@ p {
 /**************** bibliography style **********/
 .bib {
 margin-left: 1em;
-text-indent:-1em;
+text-indent: -1em;
 }
 .bib span.me {
 font-weight: bold;
@@ -104,6 +105,20 @@ font-style: italic;
 .bib me {
   
 }
+/* table.js creates these */
+.bib-container {
+    padding-left: 1em;
+    padding-right: 0.5em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+.bib-container:nth-child(even) {
+    background-color: #FEFEFE;
+}
+.bib-container:nth-child(odd) {
+    background-color: #F1F1F1;
+}
+
 
 
 /**************** images styles ****************/		
