@@ -11,6 +11,7 @@ THEME = 'theme'
 TWITTER_USERNAME = '@rmcgibbo'
 GITHUB_USERNAME = 'rmcgibbo'
 GOOGLE_ANALYTICS = 'UA-55213879-1'
+DISQUS_SITENAME = 'rmcgibbo-org'
 
 
 TIMEZONE = 'Europe/Paris'
