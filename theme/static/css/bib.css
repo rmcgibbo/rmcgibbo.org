@@ -1,0 +1,30 @@
+/**************** bibliography style **********/
+.bib {
+margin-left: 1em;
+text-indent: -1em;
+}
+.bib span.me {
+font-weight: bold;
+}
+
+.bib span.journal {
+font-style: italic;
+}
+
+.bib a:hover{
+    
+}
+
+/* bib-container.js creates these */
+.bib-container {
+    padding-left: 1em;
+    padding-right: 0.5em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+.bib-container:nth-child(even) {
+    background-color: #eee;
+}
+.bib-container:nth-child(odd) {
+    background-color: #dfdfdf;
+}

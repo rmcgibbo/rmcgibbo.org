@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set active_page = "About" %}
+
+{%- block content %}
+<section id="content" class="body">
+<h2 class="entry-title">Robert T. McGibbon</h2>
+  <p> I'm currently a third year PhD student in
+      the Department of Chemistry at  Stanford University. I work with
+      <a href="http://folding.stanford.edu/Pande/Main">Vijay Pande</a> on
+      quantitative statistical analysis of protein dynamics via long-timescale
+      simulation and Markov models.</p>
+  <p>I graduated from Princeton University, where I studied Chemistry and
+      Computer Science. While there, I worked with
+      <a href="http://webscript.princeton.edu/~abbgroup/about_andy">Andrew Bocarsly</a>.</p>
+  <p>In my free time, I read, follow politics, and rock climb.
+</p>
+
+
+<h2 class="entry-title">Research</h2>
+<p> My research at Stanford with <a href="http://folding.stanford.edu/Pande/Main">Vijay Pande</a>
+    centers around building new techniques for the quantitative statistical
+    analysis of long timescale molecular dynamics simulations, typically for
+    protein folding and conformational change.</p>
+<p> This work has involved both theory, software development, and applications.
+    Aspects have involved distance metric learning, using large-margin
+    techniques, the development of novel L1-regularized hidden Markov models
+    for analysis of protein dynamics (including a massively accelerated
+    multicore and CUDA implementations), and variational methods for model
+    selection. </p>
+<p> Most of this research requires writing new software, and
+    scalability is a central priority for our work on massive protein dynamics
+    datasets. This work is all publicly available on <a href="http://github.com/rmcgibbo">github</a>. </p>
+
+</section>
+{% endblock content -%}

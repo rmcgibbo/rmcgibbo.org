@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ super() }} — {{ article.url }}{% endblock title %}
+
+{%- block content %}
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+    <a href="{{ SITEURL }}/{{ article.url }}" rel="bookmark" title="Permalink to {{ article.title|striptags|e }}">{{ article.title }}</a></h2>  
+  </header>
+  {{ article.content }}
+  
+
+
+{% if article.tags %}
+<p class="post-tags">
+<b>Tagged:<b>
+   {% for tag in article.tags %}
+     <span><a href="{{ SITEURL }}/{{tag.url}}">{{tag}}</a></span>
+     {% if not loop.last %} / {% endif %}
+   {% endfor %}
+</p>
+{% endif %}
+
+</section>
+{% endblock content -%}
