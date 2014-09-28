@@ -32,8 +32,7 @@ POSTS_INDEX_SAVE_AS = 'posts/index.html'
 
 PATH = 'content'
 PAGES_PATH = ['../pages']
-TEMPLATE_PAGES = {'../pages/about.html': 'about.html',
-                  '../pages/publications.html': 'publications.html'}
+TEMPLATE_PAGES = {'../pages/publications.html': 'publications/index.html'}
 
 NAVIGATION_BAR = [
    ('/', 'About'),    
