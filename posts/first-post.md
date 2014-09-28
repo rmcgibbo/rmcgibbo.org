@@ -6,10 +6,10 @@ This is my first post on this new website! I went ahead and purchased the
 domain <a href="http://rmcgibbo.org">rmcgibbo.org</a> to try to consolidate
 my material on the web.
 
-The domain was registered through GoDaddy, configured the DNS using Amazon
-Route53. This site itself is simply static HTML/CSS/JS, and is generated
-using <a href="http://blog.getpelican.com/">Pelican</a>, a static site
-generator powered by Python.
+The domain was registered through GoDaddy, and its DNS settings were configured
+through Amazon Route53. This site itself is simply static HTML/CSS/JS, and
+is generated using <a href="http://blog.getpelican.com/">Pelican</a>, a staticd
+site generator powered by Python.
 
 Because the site is statically generated, it can be served cheaply (i.e.
 from just an S3 bucket). I can author the content in my standard editor in

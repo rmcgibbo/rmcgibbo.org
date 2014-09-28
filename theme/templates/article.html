@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set active_page = "Posts" %}
 
-{% block title %}{{ super() }} — {{ article.url }}{% endblock title %}
+{% block title %}{{ super() }} — {{ article.title }}{% endblock title %}
 
 {%- block content %}
 <section id="content" class="body">

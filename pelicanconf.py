@@ -14,7 +14,7 @@ GOOGLE_ANALYTICS = 'UA-55213879-1'
 DISQUS_SITENAME = 'rmcgibbo-org'
 
 
-TIMEZONE = 'Europe/Paris'
+TIMEZONE = 'America/Los_Angeles'
 DEFAULT_LANG = u'en'
 
 ARTICLE_URL = 'posts/{slug}/'
