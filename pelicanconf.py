@@ -31,7 +31,7 @@ DIRECT_TEMPLATES = ('index', 'posts_index', 'tags',)
 PAGINATED_DIRECT_TEMPLATES = ('posts_index',)
 POSTS_INDEX_SAVE_AS = 'posts/index.html'
 
-PATH = 'content'
+PATH = 'posts'
 PAGES_PATH = ['../pages']
 TEMPLATE_PAGES = {'../pages/publications.html': 'publications/index.html'}
 
