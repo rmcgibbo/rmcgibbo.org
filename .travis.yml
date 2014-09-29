@@ -4,9 +4,10 @@ python:
     - "3.4"
 
 env:
-  # encrypted AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to push to S3
-  - secure: "cK5nhaYCN8lo36k+BOCWdf1AJ35Pse5etnke407+C4wFPxKOfaTaE8fVoTfQevD4sWk1gYg9hGz/1H1hEfDPrp+HdwKuwJ/jP7vAaXMuR2Czz+Sgw67XYblsv11DrbvPpanXuFnRsKf88l3Z9GzSeN9LJ/mjasfgBKRI/FwBa8c="
-  - secure: "hAYRMpDDm6oMZbWHcLbucAcb2KdoIrfZMjoT0rkpjA8VWDwV5K07tcacziVeiR1MgtmHARx0ZI9vrO5Qu+z8/Gui0U564RWoTq9UAlIBVN6Ee83AdoVGR6ZyxoqAByviYZumvbW6rG6B1u9qyEJoZ27tHPSrwm71YNpqkzVE+3s="
+  global:
+      # encrypted AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to push to S3
+      - secure: "cK5nhaYCN8lo36k+BOCWdf1AJ35Pse5etnke407+C4wFPxKOfaTaE8fVoTfQevD4sWk1gYg9hGz/1H1hEfDPrp+HdwKuwJ/jP7vAaXMuR2Czz+Sgw67XYblsv11DrbvPpanXuFnRsKf88l3Z9GzSeN9LJ/mjasfgBKRI/FwBa8c="
+      - secure: "hAYRMpDDm6oMZbWHcLbucAcb2KdoIrfZMjoT0rkpjA8VWDwV5K07tcacziVeiR1MgtmHARx0ZI9vrO5Qu+z8/Gui0U564RWoTq9UAlIBVN6Ee83AdoVGR6ZyxoqAByviYZumvbW6rG6B1u9qyEJoZ27tHPSrwm71YNpqkzVE+3s="
 
 install: "pip install -r requirements.txt"
 
