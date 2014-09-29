@@ -8,5 +8,5 @@ global:
 install: "pip install -r requirements.txt"
 script: "make publish"
 after_success:
-  - [[ "$TRAVIS_BRANCH" == "master" ]] &&  aws s3 sync output/ s3://rmcgibbo.org/
+  - '[[ "$TRAVIS_BRANCH" == "master" ]] &&  aws s3 sync output/ s3://rmcgibbo.org/'
     
