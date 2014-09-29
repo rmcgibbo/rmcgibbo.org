@@ -52,6 +52,7 @@ ifdef PORT
 else
 	$(BASEDIR)/develop_server.sh restart
 endif
+	$(PY) -c 'import webbrowser; webbrowser.open("http://localhost:8000")'
 
 stopserver:
 	kill -9 `cat pelican.pid`
