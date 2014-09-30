@@ -1,0 +1,764 @@
+<!--
+slidedeck: A modification of the Google IO 2012 HTML5 slide template
+URL: https://github.com/rmcgibbo/slidedeck
+
+Based on https://github.com/francescolaffi/elastic-google-io-slides, and
+ultimately:
+
+Google IO 2012 HTML5 Slide Template
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahe <lukem@google.com>
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Optimal Markov Models</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+   <link rel="shortcut icon" href=" http://www.stanford.edu/favicon.ico"/> 
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="all" href="theme/css/custom.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides", src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
+
+
+  <!-- MathJax support  -->
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    showProcessingMessages: false,
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    TeX: {
+      extensions: ["color.js"]
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <div style="display:hidden">
+  \[
+    \definecolor{data}{RGB}{18,110,213}
+    \definecolor{unknown}{RGB}{217,86,16}
+    \definecolor{learned}{RGB}{175,114,176}
+  \]
+  </div>
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+<slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+
+    <h1> Optimal Markov Models</h1>
+    <h2> Formulation & Pursuit</h2>
+    <p> Robert T. McGibbon<br/> September 29, 2014</p>
+  </hgroup>
+</slide>
+
+
+<slide  >
+  
+    <hgroup>
+      <h2>Overview</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul class="build">
+<li>Motivation<ul class="build">
+<li>Quantitative analysis of molecular simulations</li>
+</ul>
+</li>
+<li>The problem with current MSMs<ul class="build">
+<li>What's the loss function?</li>
+</ul>
+</li>
+<li>A variational formulation of MSMs<ul class="build">
+<li>Generalized matrix Rayleigh quotient</li>
+</ul>
+</li>
+<li>Pursuing the optimal model<ul class="build">
+<li>Optimization of a noisy, stochastic, and expensive function
+  over an awkward search space</li>
+</ul>
+</li>
+</ul></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Motivation</h2>
+      <h3>Quantitative analysis of molecular simulations</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Experiments Can't Do It Alone</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center style="margin-top:-20px">
+<img height=230 src="figures/1-s2.0-S0022283697914546-gr9b.gif"/>
+<img height=230 src="figures/F4.large.jpg"/>
+<img height=230 src="figures/nmeth1010-775c-F1.jpg"/>
+<br/>
+<img height=230 src="figures/1-s2.0-S0959440X03000113-gr4.gif"/>
+<img height=230 src="figures/xraydensity.jpg"/>
+<img height=230 src="figures/hd-exchange.jpg"/>
+<img height=230 src="figures/2dir.jpg"/>
+</center></p>
+<footer class="source">
+<div style="margin-top:-25px">
+S. Westenhoff et al., <i>Nature Methods</i> 7, 775 (2010). &nbsp; | &nbsp;
+G. Panick et al., <i> J. Mol. Biol. </i> 275 389 (1998)  &nbsp; | &nbsp;
+Y Li et al., <i>J. Biol. Chem.</i> 277 33018 (2002) <br/> 
+X. Zhuang; M. Rief, <i>Curr. Opin. Struct. Biol</i> 13 88 (2003) &nbsp; | &nbsp;
+J. J. Englander et al., <i> Proc. Natl. Acad. Sci. U.S.A. </i> 100 7057 (2003) <br/>
+I J. Finkelstein et al., <i> Proc. Natl. Acad. Sci. U.S.A. </i> 104 2637 (2007)
+</div>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>The relevant atomic physics is settled*</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="float:left; position:relative; top:-20px; padding-left:50px">
+    <img height=350 src="figures/vdw-protein-water.png"/>
+    <br/>
+    <img height=120 src="figures/amber-functional-form.png"/>
+</div>
+
+<div style="float:right; position:relative; left:-50px;">
+    <img width=400 src="figures/papers_InhomogeneousElectronGas.png" />
+    <br/>
+    <hr/>
+    <img width=400 src="figures/paper_title_OnTheDeterminationofMolecularFields.png" />
+    <br/>
+    <hr/>
+    <img width=400 src="figures/papers_ClassicalEquationOfState.png" />
+
+</div>
+
+<footer class="source">
+Hohenberg, Kohn <a href="http://doi.org/10.1103/PhysRev.136.B864">10.1103/PhysRev.136.B864</a>, &nbsp;
+Jones <a href="http://doi.org/10.1098/rspa.1924.0082">10.1098/rspa.1924.0082</a>, <br/>
+Buckingham <a href="http://doi.org/10.1098/rspa.1938.0173">10.1098/rspa.1938.0173</a>, &nbsp;
+Cornell et al. <a href="http://doi.org/10.1021/ja00124a002">10.1021/ja00124a002</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Simulations are no longer rate limiting*</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="float:right; position:relative; left:-50px; top:0px">
+    <center><img height=230 src="figures/fah.jpeg" /></center>
+    <center><img height=230 src="figures/anton.jpg" /></center>
+</div>
+
+<p><img style="position:relative; top:100px" height=120 src="figures/lane_paper_quote.png" /></p>
+<p style="position:relative; top:130px">
+In 10 years, GPUs will likely be 100-1000x more powerful!
+</p>
+
+<footer class="source">
+    Lane et al. <a href="http://doi.org/10.1016/j.sbi.2012.11.002">10.1016/j.sbi.2012.11.002</a>
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Why aren't we there yet with Markov modeling?</h2>
+      <h3></h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMs lack systematic parameter selection</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="float:right; position:relative; top:-50px">
+<img width=300 src="figures/spaghetti_on_the_wall.jpg">
+</div>
+
+<ul class="build">
+<li>What featurization?<ul class="build">
+<li>Cartesian, dihedrals, contact distances?</li>
+</ul>
+</li>
+<li>Dimensionality Reduction?<ul class="build">
+<li>PCA, tICA?</li>
+</ul>
+</li>
+<li>What clustering method?<ul class="build">
+<li>k-centers, k-means, hierachical?</li>
+</ul>
+</li>
+<li>How many states?</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Lack of systematic parameter selection</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center style="position:relative; top:00px">
+<img width=500 src="figures/kohlhoff-paper-title.png">
+<br/>
+<img width=900 src="figures/kohlhoff-methods.png">
+</center>
+<footer class="source">
+    Kohlhoff et al. <a href="http://doi.org/10.1038/nchem.1821">10.1038/nchem.1821</a>
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Lack of systematic parameter selection</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="position:relative; top:20px">
+<center>
+<img width=700 src="figures/lane-paper-title.png">
+<br/><br/>
+<img width=800 src="figures/lane-methods.png">
+</center>
+</div>
+
+<footer class="source">
+    Lane, Pande <a href="http://doi.org/10.1021/ja207470h">10.1021/ja207470h</a>
+</center></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Lack of systematic parameter selection</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center>
+<img width=450 src="figures/sadiq-paper-title.png">
+<img width=450 src="figures/beauchamp-paper-title.png">
+</center></p>
+<p><center>
+<img width=900 src="figures/sadiq-methods.png">
+</center>
+<br/>
+<center>
+<img width=920 src="figures/beauchamp-methods.png">
+</center></p>
+<footer class="source">
+    Sadiq, Noé, De Fabritiis <a href="http://doi.org/10.1073/pnas.1210983109">10.1073/pnas.1210983109</a> <br/>
+    Beauchamp et al. <a href="http://doi.org/10.1073/pnas.1201810109">10.1073/pnas.1201810109</a>    
+</center></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Optimal MSMs</h2>
+      <h3>A variational formulation via a generalized matrix Rayleigh quotient</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>The Propagator</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center>
+<img width=800 src="figures/fmicb-03-00258-g001.png">
+</center></p>
+<p><mathjax>$$
+\begin{align}
+p_{t+\tau}(\mathbf{y}) = \int_\Omega d\mathbf{x} \; p(\mathbf{x}, \mathbf{y};&amp; \tau) \, p_t(\mathbf{x}) = \fcolorbox{black}{white}{$\mathcal{P}(\tau)$} \circ p_t(\mathbf{y}) \\\
+\mathcal{P}(\tau) \circ \phi_i &amp;= \lambda_i \phi_i \\\
+p_{t+k\tau}(\mathbf{x}) &amp;= \sum_{i=1}^\infty \lambda_i^k \langle p_t, \phi_i \rangle_{\mu^{-1}}\; \phi_i
+\end{align}
+$$</mathjax></p>
+<footer class="source">
+    Ode et al. <a href="http://doi.org/10.3389/fmicb.2012.00258">10.3389/fmicb.2012.00258</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Low-rank approximations</h2>
+      <h3>How do we compress the propagator?</h3>
+    </hgroup>
+    <article ><p><mathjax>$$
+\left(
+ \vphantom{\begin{array}{c}1\\1\\1\\1\\1\end{array}}
+  \smash{\begin{array}{ccccc}
+     \;\;\;\;\;\;&amp;&amp;&amp;&amp;\\
+     &amp;&amp;&amp;&amp;\\
+     &amp;P&amp;&amp;&amp;\\
+     &amp;&amp;&amp;&amp;\\
+     &amp;&amp;&amp;&amp;
+\end{array}}\right)
+\;\approx\;
+\left( 
+ \vphantom{\begin{array}{c}1\\1\\1\\1\\1\end{array}}
+  \smash{\begin{array}{c}
+         \\
+         \\
+         V\\
+         \\
+         \\
+\end{array}}\right)
+\times
+\left( 
+ \vphantom{\begin{array}{c}1\\1\end{array}}
+  \smash{
+  \begin{array}{ccccc}
+         &amp;&amp;U^T&amp;&amp;\\
+  \end{array}}
+\right)
+$$</mathjax></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Low-rank approximations</h2>
+      <h3>How do we compress the propagator?</h3>
+    </hgroup>
+    <article ><p><center>
+<img width=1000 src="figures/eckhart-young-theorem.png"/>
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Low-rank approximations</h2>
+      <h3>How do we compress the propagator?</h3>
+    </hgroup>
+    <article ><p><center style="position:relative; top:150px; font-size:150%">
+In english please?
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Low-rank approximations</h2>
+      <h3>How do we compress the propagator?</h3>
+    </hgroup>
+    <article ><ul>
+<li>The first <mathjax>$m$</mathjax> eigenfunctions, <mathjax>$\{\phi_1, \ldots, \phi_m\}$</mathjax>  would yield the <strong>optimal</strong>
+  rank-<mathjax>$m$</mathjax> approximation to the dynamics.<ul>
+<li>These are the slow degrees of freedom.</li>
+<li>The long timescale dynamical processes.</li>
+<li>The reaction coordinate(s).</li>
+</ul>
+</li>
+</ul>
+<p><center style="font-size:120%; position:relative; top:50px">
+That sounds promising. So how do we find them?
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Problem statement</h2>
+      <h3>Principled parameterization of low-rank models of dynamics</h3>
+    </hgroup>
+    <article ><ul>
+<li>Using some <em>ansatz</em> eigenfunctions <mathjax>${\color{unknown}f}=\{f_i(\cdot)\}_{i=1}^m$</mathjax>,
+  and some <mathjax>$\color{data}\text{MD data}$</mathjax>,</li>
+<li>Develop an <it>optimization</it> problem (learning objective),
+<mathjax>$$
+{\color{learned}f^*}= \operatorname*{argmax}_{\color{unknown}f}\;
+\underbrace{\operatorname{Score}}_\text{Find me!}[{\color{unknown}f}; {\color{data}\text{data}}]
+$$</mathjax>
+whose solution, <mathjax>${\color{learned}f^*}$</mathjax>, given infinite <mathjax>$\color{data}\text{MD data}$</mathjax>,
+would be the first <mathjax>$m$</mathjax> eigenfunctions of <mathjax>$\fcolorbox{black}{white}{\(\mathcal{P}(\tau)\)}$</mathjax>.</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Variational theorem for eigenspaces</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center style="position:relative; top:-20px">
+<img width=900 src="figures/theorem_Variational.png"/>
+<img width=900 src="figures/lemma_Variational.png"/>
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Linear variation with basis functions</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="font-size:85%">
+
+Given basis functions, $\{\varphi_a\}$, let $f_i(x) = \sum_a {\color{unknown}A_{ia}}\, \mu(\mathbf{x}) \varphi_a(\mathbf{x})$.
+
+$$
+\begin{align}
+{\color{data}C_{ab}} &= \langle \mu \varphi_a, \mathcal{P}(\tau) \circ \mu \varphi_b \rangle_{\mu^{-1}}
+\approx \overbrace{\frac{1}{T} \sum_t^T \varphi_a(\mathbf{x}_t) \varphi_b(\mathbf{x}_{t+\tau})}^{\color{data}\text{from MD data}} \\
+{\color{data}S_{ab}} &= \langle \mu \varphi_a, \mu \varphi_b \rangle_{\mu^{-1}} \approx \frac{1}{T} \sum_t^T \varphi_a(\mathbf{x}_t) \varphi_b(\mathbf{x}_t)
+\end{align}
+$$
+
+$$
+\begin{align}
+\mathcal{R}_\mathcal{P}[f] &= \operatorname{Tr}\left[P(f)\,Q(f)^{-1}\right] \\
+&= \operatorname{Tr}\left[({\color{unknown}A}^T{\color{data}C}{\color{unknown}A})
+    ({\color{unknown}A}^T{\color{data}S}{\color{unknown}A})^{-1}\right]
+\end{align}
+$$</article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMs and tICA</h2>
+      <h3>Different bases, <it>same objective</it></h3>
+    </hgroup>
+    <article ><p>Using basis functions, we now have a "standard" problem.
+<mathjax>$$
+{\color{learned}A^*} = \operatorname*{argmax}_{\color{unknown}A}\; \operatorname{Tr}\left[({\color{unknown}A}^T{\color{data}C}{\color{unknown}A})
+    ({\color{unknown}A}^T{\color{data}S}{\color{unknown}A})^{-1}\right]
+$$</mathjax></p>
+<ul>
+<li>If <mathjax>$\varphi_m(\mathbf{x})$</mathjax> are linearly independent geometrical features:<ul>
+<li>This is tICA, and <mathjax>${\color{learned}A^*}$</mathjax> <em>are the tICs</em>.</li>
+</ul>
+</li>
+<li>If we have <mathjax>$m$</mathjax> "states" and <mathjax>$\varphi_m(\mathbf{x}) = \mu^{-1}(\mathbf{x}) \cdot \mathbf{1}_{\mathbf{x} \in S_m}$</mathjax><ul>
+<li>This is an MSM, and <mathjax>${\color{learned}A^*}$</mathjax> <em>are the MSM eigenvectors</em>.</li>
+</ul>
+</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Connections with other fields</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Well known in electronic structure theory of excited states<ul>
+<li>Band structure of semiconductors, theory of maximally localized
+  Wannier functions</li>
+</ul>
+</li>
+</ul>
+<p><mathjax>$$ 
+\min_{\Psi \in \mathbb{R}^{n, N}, \Psi^T\Psi = I} \operatorname{Tr}(\Psi^T H \Psi)
+$$</mathjax></p>
+<ul>
+<li>Kernel Fisher discriminant analysis (LDA/FDA)</li>
+</ul>
+<p><mathjax>$$
+\max_{W \in \mathbb{R}^{n, N}} \operatorname{Tr}[(W^T S_p W) (W^T S_l W)^{-1}]
+$$</mathjax></p>
+<footer class="source">
+Lai, Lu, Osher <a href="http://arxiv.org/pdf/1403.1525.pdf">arXiv 1403.1525</a>, &nbsp;
+Gross, Olvera, Kohn <a href="http://doi.org/10.1103/PhysRevA.37.2805">10.1103/PhysRevA.37.2805</a> <br/>
+Wang et al <a href="http://doi.org/10.1109/CVPR.2007.382983">10.1109/CVPR.2007.382983</a> , &nbsp;
+Jia et al. <a href="http://doi.org/10.1109/TNN.2009.2015760">10.1109/TNN.2009.2015760</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Separate training and testing</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>"As noticed in the early 30s by Larson, training an algorithm and evaluating
+  its statistical performance on the same data yields overly optimistic results."</li>
+<li>Our optimization <em>learns</em> <mathjax>${\color{learned}A^*}$</mathjax> from one <mathjax>$\color{data}\text{data set}$</mathjax>,
+  so we need to <em>test</em> it on a <mathjax>$\color{green}\text{different data set}$</mathjax>.</li>
+</ul>
+<p><mathjax>$$
+\begin{align} 
+\text{Train:}\hspace{1em}&amp; {\color{learned}A^*} = \operatorname*{argmax}_{\color{unknown}A}\; \operatorname{Tr}\left[({\color{unknown}A}^T{\color{data}C}{\color{unknown}A})
+    ({\color{unknown}A}^T{\color{data}S}{\color{unknown}A})^{-1}\right] \\
+\text{Test:}\hspace{1em}&amp; \mathrm{score}=\operatorname{Tr}\left[
+({\color{learned}A^*}^T {\color{green}C'} {\color{learned}A^*})
+({\color{learned}A^*}^T {\color{green}S'} {\color{learned}A^*})^{-1}
+\right]
+\end{align}
+$$</mathjax></p>
+<footer class="source">
+  Larson <a href="http://doi.org/10.1037/h0072400">10.1037/h0072400</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMs can overfit</h2>
+      <h3>Finding the slow eigenvector on a double-well potential</h3>
+    </hgroup>
+    <article ><p><center>
+<img width=1000 src="figures/doublewell-experiment-crop.png">
+</center></p>
+<footer class="source">
+Error bars indicate standard deviations over the 5 folds of cross validation.
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Pursuing the optimal model</h2>
+      <h3>Optimization of a noisy, stochastic, and expensive function</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Optimizing the cross-validated GMRQ</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Independent variables:<ul>
+<li>Featurization (e.g. dihedrals, contacts, ...)</li>
+<li>Preprocessing (e.g. tICA, PCA, None)</li>
+<li>MSM clustering method (e.g. KCenters, KMeans, ...)</li>
+<li>Number of MSM states</li>
+</ul>
+</li>
+<li>Optimization methods:<ul>
+<li>Grid search</li>
+<li>Random search</li>
+<li>Bayesian methods (e.g. GPs, TPE)</li>
+</ul>
+</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Octanaline MSMs</h2>
+      <h3>Grid searching different featurization and clustering</h3>
+    </hgroup>
+    <article ><p><center style="position:relative; top:-60px">
+<img width=1000 src="figures/msm-comparison.png">
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Fs Peptide folding</h2>
+      <h3>Search Space, ($\tau=50\; \text{ps},\; n_{timescales}=3$)</h3>
+    </hgroup>
+    <article ><div style="float:left; font-size:79%; position:relative; top:-30px">
+$$
+\newcommand\T{\Rule{0pt}{1em}{.3em}}
+    \begin{array}{|c|c|}
+    \hline \textbf{Category} & \textbf{Options} \\\hline
+      \text{Featurization} & \{\phi,\psi\}, \{\phi, \psi, \chi_1\}, \{\phi, \psi, \chi_1, \chi_2\} \\\hline
+      \text{Preprocessing} & \text{PCA, tICA, None} \\\hline
+      \text{# of tICs/PCs} \T & [2, 20] \\\hline
+      \text{tICA } \gamma \T & \{0, 10^{-7}, 10^{-5}, 10^{-3}, 10^{-1}\} \\\hline
+      \text{tICA weighting} & \{\text{True, False}\} \\\hline
+      \text{Clustering} & \text{$k$-centers, minibatch $k$-means} \\\hline
+      \text{# of states} & [10, 500] \\\hline
+    \end{array}
+$$
+</div>
+
+<p><img width=300 style="float:right; z-index:-1; position:absolute;" src="figures/fs-peptide.png"></p>
+<footer class="source">
+CV=5, 28 trajectories, each 500 ns. (aggregate 14$\mu s$)
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Fs Peptide folding</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center >
+<img width=900 src="figures/fs-analysis-kmeans.png"/>
+<img width=900 src="figures/fs-analysis-n-tics.png"/>
+<img width=900 src="figures/fs-analysis-featurization.png"/>
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Fs Peptide folding</h2>
+      <h3>Best model</h3>
+    </hgroup>
+    <article ><div style="float:left; font-size:79%; position:relative; top:-30px">
+$$
+\newcommand\T{\Rule{0pt}{1em}{.3em}}
+    \begin{array}{|c|c|}
+    \hline \textbf{Category} & \textbf{Options*} \\\hline
+      \text{Featurization} & \{\phi, \psi, \chi_1, \chi_2\} \\\hline
+      \text{Preprocessing} & \text{tICA} \\\hline
+      \text{# of tICs} \T & 2 \\\hline
+      \text{tICA } \gamma \T & 0 \\\hline
+      \text{tICA weighting} & \text{True} \\\hline
+      \text{Clustering} & \text{m.b. $k$-means} \\\hline
+      \text{# of states} & 480 \\\hline
+    \end{array}
+$$
+</div>
+
+<p><img style="float:right; z-index:-1; position:absolute; top:170px" src="figures/best-fs-model-tics.png" width=600></p>
+<footer class="source">
+<a href="http://vspm9.stanford.edu/notebooks/fs-analysis">notebook</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Doublewell MSMs</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="python">
+from mixtape.cluster import NDGrid
+from sklearn.pipeline import Pipeline
+from mixtape.datasets import load_doublewell
+from sklearn.grid_search import GridSearchCV
+from mixtape.markovstatemodel import MarkovStateModel
+
+ds = load_doublewell(random_state=1)
+strided = [t[::100] for t in ds['trajectories']]
+pipeline = Pipeline([
+    ('grid', NDGrid( min=-np.pi, max=np.pi)),
+    ('msm', MarkovStateModel(n_timescales=1, reversible_type='mle', ergodic_trim=True)),
+])
+grid = GridSearchCV(pipeline, param_grid=[
+        {'grid__n_bins_per_feature': [s], 'msm__n_states': [s]} for s in n_states
+    ], cv=5, return_train_scores=True, verbose=10)
+grid.fit(strided)
+print(grid.grid_scores_)
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Takeaways</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul class="build">
+<li>Systematic evaluation and optimization of MSMs is possible<ul class="build">
+<li>Incl. different clusterings, featurizations, protocols</li>
+</ul>
+</li>
+<li>Overfitting is real. Systematic gap between training and testing performance.</li>
+<li>Optimal number MSM "states" is driven by the statistics, not just
+  the physics.</li>
+<li>With tICA, <mathjax>$n_{states} &lt; 1000$</mathjax>, MSM speed is not an issue</li>
+</ul></article>
+ 
+</slide>
+
+
+<slide class="thank-you-slide segue nobackground">
+  <!-- <aside class="gdbar right"><img src="images/google_developers_icon_128.png"></aside> -->
+  <article class="flexbox vleft auto-fadein">
+    <h2> More questions?</h2>
+    <p>  Thanks everyone! Especially Vijay, Christian.</p>
+  </article>
+  <p data-config-contact class="auto-fadein"> <span>www</span> <a href="http://rmcgibbo.appspot.com">website</a><br/> <span>github</span> <a href="http://github.com/rmcgibbo">rmcgibbo</a></p>
+  </p>
+</slide>
+
+<slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
