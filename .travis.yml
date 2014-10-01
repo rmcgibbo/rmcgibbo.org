@@ -14,5 +14,5 @@ install: "pip install -r requirements.txt"
 script: "make publish"
 
 after_success:
-  - '[[ "$TRAVIS_BRANCH" == "master" ]] && make s3_upload
+  - '[[ "$TRAVIS_BRANCH" == "master" ]] && make s3_upload'
     
