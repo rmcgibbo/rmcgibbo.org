@@ -8,6 +8,11 @@
   <link rel="stylesheet" href="{{ SITEURL }}/theme/css/main.css">
   <meta name="author" content="{{AUTHOR}}">
   <meta name="twitter:creator" content="{{TWITTER_USERNAME}}">
+  <!--[if IE]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
 {% endblock headers %}
 </head>
 <body>
@@ -55,13 +60,6 @@
   ga('send', 'pageview');
 </script>
 {% endif %}
-
-
-<!--[if IE]>
-<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
