@@ -7,10 +7,7 @@ import hashlib
 import boto
 import mimetypes
 from boto.s3.key import Key
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from six import BytesIO
 
 ROOT = sys.argv[1]
 BUCKET_NAME = sys.argv[2]
@@ -57,7 +54,7 @@ def open_gzip(fn):
     gzipped_data = gz_obj.compress(uncompressed_data)
     gzipped_data += gz_obj.flush()
     
-    return StringIO(gzipped_data), True
+    return BytesIO(gzipped_data), True
 
 
 def main():
