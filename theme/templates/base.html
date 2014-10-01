@@ -5,35 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
-
-  <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX", "output/HTML-CSS"],
-    showProcessingMessages: false,
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-      processEscapes: true
-    },
-    TeX: {
-      extensions: ["color.js"]
-    },
-    "HTML-CSS": { availableFonts: ["TeX"] }
-  });
-  </script>
-  <script type="text/javascript"
-    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-  </script>
-  
-  
-    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/main.css">
-    <!--[if IE]>
-      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/css/main.css">
   <meta name="author" content="{{AUTHOR}}">
   <meta name="twitter:creator" content="{{TWITTER_USERNAME}}">
 {% endblock headers %}
@@ -84,6 +56,32 @@
 </script>
 {% endif %}
 
-  
+
+<!--[if IE]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+extensions: ["tex2jax.js"],
+jax: ["input/TeX", "output/HTML-CSS"],
+showProcessingMessages: false,
+tex2jax: {
+  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+  displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+  processEscapes: true
+},
+TeX: {
+  extensions: ["color.js"]
+},
+"HTML-CSS": { availableFonts: ["TeX"] }
+});
+</script>
+<script type="text/javascript"
+src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 </body>
 </html>
