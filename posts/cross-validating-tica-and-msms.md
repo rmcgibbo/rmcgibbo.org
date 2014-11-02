@@ -1,5 +1,5 @@
 Title: Cross-validating tICA and MSMs
-Date: 2014-10-28
+Date: 2014-09-28
 Tags: MSMs, tICA, theory, cross validation, protein dynamics
 
 Some of our new work at the intersection of chemical physics and machine

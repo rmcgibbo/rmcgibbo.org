@@ -1,5 +1,5 @@
 Title: Optimal Markov Models: Formulation & Pursuit
-Date: 2014-11-1
+Date: 2014-10-1
 Tags: talks, MSMs, tICA, theory, cross validation, protein dynamics
 
 I spoke this afternoon about our recent work [[on arXiv][1]] on the

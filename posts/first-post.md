@@ -1,5 +1,5 @@
 Title: New website!
-Date: 2014-10-28
+Date: 2014-09-28
 Tags: web, pelican, python
 
 This is my first post on this new website! I went ahead and purchased the

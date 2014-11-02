@@ -1,5 +1,5 @@
 Title: Passwordless SSH with Kerberos
-Date: 2014-11-02
+Date: 2014-10-02
 Tags: linux
 
 In research computing, passwordless SSH makes everything much more convenient,

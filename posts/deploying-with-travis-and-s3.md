@@ -1,5 +1,5 @@
 Title: Deploying with Travis-CI and S3
-Date: 2014-10-29
+Date: 2014-09-29
 Tags: software, web, travis, aws
 
 [Travis-CI][1] is _fantastic_ for testing software (continuous integration)
