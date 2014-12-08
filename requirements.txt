@@ -9,7 +9,7 @@ colorama==0.2.5
 docutils==0.12
 feedgenerator==1.7
 jmespath==0.4.1
-pelican==3.4.0
+git+https://github.com/getpelican/pelican.git@9b5261512d10a955ca431fd54321cbc9915877bd
 python-dateutil==2.2
 pytz==2014.7
 six==1.8.0
