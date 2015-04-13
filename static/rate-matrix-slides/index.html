@@ -1,0 +1,584 @@
+<!--
+slidedeck: A modification of the Google IO 2012 HTML5 slide template
+URL: https://github.com/rmcgibbo/slidedeck
+
+Based on https://github.com/francescolaffi/elastic-google-io-slides, and
+ultimately:
+
+Google IO 2012 HTML5 Slide Template
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahe <lukem@google.com>
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Fitting Master Equations</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+   <link rel="shortcut icon" href=" http://www.stanford.edu/favicon.ico"/> 
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="all" href="theme/css/custom.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides", src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
+
+
+  <!-- MathJax support  -->
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    showProcessingMessages: false,
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    TeX: {
+      extensions: ["color.js", "mhchem.js"]
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+  </script>
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <div style="display:hidden">
+  $$
+    \definecolor{data}{RGB}{18,110,213}
+    \definecolor{unknown}{RGB}{217,86,16}
+    \definecolor{learned}{RGB}{175,114,176}
+    
+    \newcommand{\underbracedbmatrix}[2]{
+        \smash[b]{\underbrace{
+           \begin{bmatrix}#1\end{bmatrix}
+        }_{#2}}
+        \vphantom{\underbrace{\begin{bmatrix}#1\end{bmatrix}}_{#2}}
+    }
+    
+  $$
+  </div>
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+<slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+
+    <h1> Fitting Master Equations</h1>
+    <h2> April 13, 2015</h2>
+    <p> Robert T. McGibbon<br/> arXiv:1407.8083</p>
+  </hgroup>
+</slide>
+
+
+<slide  >
+  
+    <hgroup>
+      <h2>Overview</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><img width=100% src="figures/paper-abstract-crop.png"></p>
+<footer class="source">R.T. McGibbon and V.S. Pande, “Efficient maximum likelihood parameterization of continuous-time Markov processes,” (2015), <a style="border-bottom: 0px;" href="http://arxiv.org/abs/1504.01804">arXiv:1407.8083</a>. </footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>First Order Chemical Kinetics</h2>
+      <h3>Matrix Formulation</h3>
+    </hgroup>
+    <article ><div style="float:right; position:relative; top:-80px; padding-right:100px">
+<img width="300px" src="figures/nchem.2099-f2.jpg">
+</div>
+
+<p><mathjax>$$
+\ce{U &lt;=&gt;[k_{12}][k_{21}] I &lt;=&gt;[k_{23}][k_{32}] F}
+$$</mathjax></p>
+<div style="position:relative; top:-50px;">
+$$
+\frac{d\vec{p}}{dt} =  \underbracedbmatrix{p_U & p_I & p_F}{\vec{p}} \cdot
+\underbracedbmatrix{
+    -k_{12} & k_{12} & 0 \\
+    k_{21} & -k_{21} - k_{23} & k_{23} \\
+    0 & k_{32} & -k_{32}
+}{\mathbf{K}}
+$$
+</div>
+
+<footer class="source">
+    L.-P. Wang et al. "Discovering chemistry with an ab initio nanoreactor" Nature Chemistry (2015) <a href="http://www.nature.com/nchem/journal/v6/n12/full/nchem.2099.html">doi:10.1038/nchem.2099</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Master equations</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="float:left; width:40%">
+<img width=100% src="figures/baiz-figure-5-a.png">
+</div>
+
+<div style="position:relative; top:50px; font-size:120%">
+$$
+\frac{dp_t}{dt} = p_t \, \mathbf{K}
+$$
+
+$$
+p_{t+\tau} = p_t \, \underbrace{\exp(\tau\mathbf{K})}_{\mathbf{T}(\tau)}
+$$
+
+<!-- $$
+\begin{align}
+\frac{dp_t}{dt} &= p_t \, \mathbf{K} \\
+p_{t+\tau} &= p_t \, \underbrace{e^{\tau\mathbf{K}}}_{\mathbf{T}(\tau)} \\
+%% &= p_t \cdot \underbrace{\sum_{i=0}^\infty \frac{\tau^i \mathbf{K}^i}{i!}}_{\mathbf{T}(\tau)}
+\end{align}$$ -->
+</div>
+
+<footer class="source">
+C.R. Baiz et al. Biophys J. (2014) doi:10.1016/j.bpj.2014.02.008
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>The embedding problem</h2>
+      <h3>Markov <i>processes</i> vs. Markov <i>chains</i></h3>
+    </hgroup>
+    <article ><div style="float:left; width:40%">
+<img width=100% src="figures/nihms428070f3-2.png">
+</div>
+
+<ul>
+<li><span style="text-decoration: underline;">Every</span> continuous-time Markov process can be "sliced" at any <mathjax>$\tau&gt;0$</mathjax> to yield a discrete-time Markov chain.</li>
+<li><span style="text-decoration: underline;">Not every</span> discrete-time Markov chain has an embedded continuous-time Markov process.</li>
+<li>Necessary and sufficient conditions for embedability are unknown.</li>
+</ul>
+<footer class="source">
+T.J. Lane et al. <a href="http://doi.org/10.1016/j.sbi.2012.11.002">Curr. Opin. Struct. Biol.</a> (2013) &nbsp;&nbsp;
+E.B. Davies <a href="http://doi.org/10.1214/EJP.v15-733">Electon. J. Prob.</a> (2010)
+
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>The embedding problem</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><img style="position: absolute; top:0px; left:0px" width=100% src="figures/Miike-Snow-1.jpg"></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Fitting master equations</h2>
+      <h3>From discrete-time data</h3>
+    </hgroup>
+    <article ><p><mathjax>$$
+x = \{1, 1, 2, 1, 3, 3, 2, 1, 2, 3, 4, 4, 4, 3, \ldots\}
+$$</mathjax></p>
+<p><mathjax>$$ \Downarrow ?$$</mathjax></p>
+<p><mathjax>$$
+\mathbf{K} = \begin{bmatrix}
+-2.4 &amp; 2.4 &amp;  &amp; \\
+2.2 &amp;  -3.1 &amp; 0.9 &amp; \\
+&amp; 0.5 &amp; -0.9 &amp; 0.4 \\
+&amp; &amp; 0.5 &amp; -0.5
+\end{bmatrix}
+$$</mathjax></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Existing algorithims</h2>
+      <h3>Estimating Markov processes from discrete-time data</h3>
+    </hgroup>
+    <article ><ul>
+<li>Route 1: first estimate discrete-time Markov chain, then ''solve'' embedding problem<ul>
+<li><mathjax>$\{x_1, x_2, \ldots, x_n\} \rightarrow \mathbf{T}(\tau) \rightarrow \mathbf{K}$</mathjax></li>
+<li>Fast, but unsatisfactory.<span style="vertical-align: super; font-size: smaller;">1,2</span></li>
+</ul>
+</li>
+<li>Route 2: directly fit a Markov process<ul>
+<li><mathjax>$\{x_1, x_2, \ldots, x_n\} \rightarrow \mathbf{K}$</mathjax></li>
+<li>Existing algorithims are slow <mathjax>$(O(n^5), O(n^6))$</mathjax>.<span style="vertical-align: super; font-size: smaller;">3,4</span></li>
+</ul>
+</li>
+</ul>
+<footer class="source" style="bottom: 40px">
+1. E.B. Davies <a href="http://doi.org/10.1214/EJP.v15-733">Electon. J. Prob.</a> (2010) &nbsp;&nbsp;
+2. D. Crommelin, E. Vanden-Eijnden <a href="http://doi.org/10.1016/j.jcp.2006.01.045">J. Comput. Phys.</a> (2006) <br/>
+3. J.D. Kalbfleisch, J.F. Lawless <a href="dx.doi.org/10.1080/01621459.1985.10478195">J. Am. Stat. Assoc.</a> (1985)</a>  &nbsp;&nbsp;
+4. A. Hobolth, J.L. Jensen <a href="http://dx.doi.org/10.2202/1544-6115.1127">Stat. Appl. Genet. Mol. Biol.</a> (2005).
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>New algorithm</h2>
+      <h3>Fast (enough). Confidence intervals. Sparsity.</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Overview</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><img width=100% src="figures/paper-abstract-crop.png"></p>
+<footer class="source">R.T. McGibbon and V.S. Pande, “Efficient maximum likelihood parameterization of continuous-time Markov processes,” (2015), <a style="border-bottom: 0px;" href="http://arxiv.org/abs/1504.01804">arXiv:1407.8083</a>. </footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Discrete-time data likelihood</h2>
+      <h3>Fun with matrix exponentials</h3>
+    </hgroup>
+    <article ><div style="position:relative; top:-50px; font-size:90%">
+$$\begin{align}
+P(x | \mathbf{K}, x_0) &= \prod_{k=0}^{N-1} \mathbf{T}(\tau)_{x_{k\tau},\, x_{(k+1)\tau}} = \prod_{i,j} \mathbf{T}_{ij}(\tau)^{\mathbf{C}_{ij}(\tau)}
+\end{align}$$
+<br/>
+
+$$\begin{align}
+\underbrace{\mathcal{L}(\theta; \tau)}_{\color{data}\text{maximimze me!}} &\equiv \ln P(x | \mathbf{K}(\theta), x_0) \\
+&= \sum_{i,j} \Big(\mathbf{C}(\tau) \circ \ln \exp\big(\tau\, \mathbf{K}(\theta)\big)\Big)_{ij}
+\end{align}$$
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Practical optimization 101</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><br/></p>
+<div style="float:right">
+<img height=200px src="figures/steepest-descent.png">
+</div>
+
+<ul class="build">
+<li>Parameterize away the constraints, if possible.</li>
+<li>Calculate the gradient, quickly.</li>
+<li>Use a quasi-Newton method and a good guess.</li>
+<li>Cross your fingers.</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Rate matrix constraints</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="font-size:70%">
+$$
+\mathscr{K} = \left\{\mathbf{K} = \{k_{ij}\} \in \mathbb{R}^{n \times n} : k_{ij} \geq 0 \text{ for all } i \neq j, k_{ii} = -\sum_{j\neq i} k_{ij} \right\}
+$$
+</div>
+
+<ul>
+<li>Off diagonal elements are non-negative (n.b. <mathjax>$k_{ij}=0$</mathjax> is okay).</li>
+<li>Each row sums to zero.</li>
+<li>Must have a stationary distribution, <mathjax>$\pi &gt; 0$</mathjax>, s.t. <mathjax>$\pi \mathbf{K} = 0$</mathjax>.</li>
+<li>Reversibility / detailed balance:<ul>
+<li><mathjax>$\pi_i k_{ij} = \pi_j k_{ji} \hspace{1em} \forall\; i \neq j$</mathjax>.</li>
+</ul>
+</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Parameterize away the constraints</h2>
+      <h3>Example: a 2 x 2 rate matrix</h3>
+    </hgroup>
+    <article ><p><mathjax>$$
+\mathbf{K}(\theta) \stackrel{?}{=} \begin{bmatrix}\theta_1 &amp; \theta_2 \\ \theta_3 &amp; \theta_4 \end{bmatrix}
+; \theta \in \mathbb{R}^4
+$$</mathjax>
+<img style="position:relative; top:-120px; float:right"  src="figures/50px-X_mark.svg.png"></p>
+<p><br/>
+<mathjax>$$
+\mathbf{K}(\theta) \stackrel{?}{=}  \begin{bmatrix}-e^{\theta_1} &amp; e^{\theta_1} \\ e^{\theta_2} &amp; -e^{\theta_2} \end{bmatrix}
+; \theta \in \mathbb{R}^2
+$$</mathjax>
+<img style="position:relative; top:-120px; float:right" src="figures/50px-Yes_check.svg.png"></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Parameterize away the constraints</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><br/></p>
+<ul>
+<li>Detailed balance is essentially symmetry<ul>
+<li><span style="font-size:80%"> <mathjax>$\sqrt{\frac{\pi_i}{\pi_j}} k_{ij} = \sqrt{\frac{\pi_j}{\pi_i}} k_{ji} = s_{ij} = s_{ji}$</mathjax></span></li>
+<li>Only need to track "half" of the rate matrix</li>
+</ul>
+</li>
+<li>Use log transform of the equilibrium distribution</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Calculate the gradient quickly</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><br/>
+<mathjax>$$\begin{align}
+\mathcal{L}(\theta; \tau)
+&amp;= \sum_{i,j} \Big(\mathbf{C}(\tau) \circ \ln \exp\big(\tau\, \mathbf{K}(\theta)\big)\Big)_{ij} \\
+\frac{\partial \mathcal{L}(\theta; \tau)}{\partial \theta_i} &amp;= \text{something messy, but $O(n^3)$.}
+\end{align}$$</mathjax></p>
+<p>Previous methods take <mathjax>$(O(n^5))$</mathjax> or <mathjax>$(O(n^6))$</mathjax> per iteration.</p>
+<footer class="source">R.T. McGibbon and V.S. Pande, “Efficient maximum likelihood parameterization of continuous-time Markov processes,” (2015), <a style="border-bottom: 0px;" href="http://arxiv.org/abs/1504.01804">arXiv:1407.8083</a>. </footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Computing error bars on the MLE</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="float:right; width:400px">
+<img width=100% src="figures/logregLaplaceGirolamiDemo_05.png">
+</div>
+
+<ul>
+<li>Likelihood converges to a normal distribution.</li>
+<li>Asymptotic covariance <mathjax>$=$</mathjax> inverse Hessian at the MLE.</li>
+<li>"Multivariate delta theorem"</li>
+</ul>
+<p><br/></p>
+<p><mathjax>$$
+Var(h) \approx - \nabla_\theta h(\hat{\theta})^T \cdot H(\hat{\theta})^{-1} \cdot \nabla_\theta h(\hat{\theta})
+$$</mathjax></p></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>How well does it work?</h2>
+      <h3></h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Example 1</h2>
+      <h3>Sparsity</h3>
+    </hgroup>
+    <article ><div style="position:relative; top:-50px">
+<div style="float:left; width:50%">
+<img width=70% src="figures/figure-1.png">
+<p style="font-size:50%">A simple eight state Markov process. Connected states are labeled with the pairwise rate constants, $\mathbf{K}_{ij}$.
+</div>
+
+<div style="float:right; width:50%">
+<img width=100% src="figures/figure-2.png">
+<p style="font-size:50%">
+Convergence of the estimated rate matrix, $\mathbf{\hat{K}}$, to the true generating rate matrix for discrete-time trajectories of increasing length simulated from the process with a time step of 1.
+</div>
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Example 1</h2>
+      <h3>Sparsity</h3>
+    </hgroup>
+    <article ><div style="position:relative; top:-50px">
+<div style="float:left; width:20%">
+<img width=100% src="figures/figure-1.png">
+</div>
+
+<div style="float:right; width:70%">
+<img width=100% src="figures/figure-3.png">
+<p style="font-size:50%">
+Comparison of the estimated and true off-diagonal rate matrix elements for a trajectory of length $N=10^{7}$ simulated from the process.
+</div>
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Example 2</h2>
+      <h3>Error bars</h3>
+    </hgroup>
+    <article ><div style="position:relative; top:-50px">
+<div style="float:left; width:25%">
+<img width=100% src="figures/figure-4.png">
+<br/>
+<br/>
+<p style="font-size:60%">
+$$
+z_{ij} = \frac{\hat{g}_i - \hat{g}_j}{\sqrt{\sigma^2_{\hat{g}_i} + \sigma^2_{\hat{g}_j}}} \overset{?}{\sim} \mathcal{N}(0, 1).
+$$
+</div>
+
+<div style="float:right; width:65%">
+<img width=100% src="figures/figure-5.png">
+<p style="font-size:50%">
+</div>
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Example 3</h2>
+      <h3>Accuracy</h3>
+    </hgroup>
+    <article ><div style="text-align:center; position:relative; top:-50px">
+<img width=500px src="figures/figure-6.png">
+
+<p style="font-size:60%; text-align:left; padding-top:20px">
+Relative error between continuous-time and discrete-time Markov models for
+kinetics on random graphs. Values below zero indicate lower error for the
+continuous-time model, whereas values above zero indicate the reverse.
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Example 4</h2>
+      <h3>Comparison with discrete-time models on WW Domain</h3>
+    </hgroup>
+    <article ><div style="text-align:center; position:relative; top:0px">
+<img width=100% src="figures/figure-8.png">
+<p style="font-size:70%; text-align:left; padding-top:20px">
+Relaxation timescales are essentially identical ($r^2 = 0.999978$), but the
+continuous-time model has fewer nonzero parameters.
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Example 4</h2>
+      <h3>Comparison with discrete-time models on WW Domain</h3>
+    </hgroup>
+    <article ><div style="position:relative; top:00px">
+<div style="float:left; width:45%">
+<img width=100% src="figures/figure-9.png">
+<p style="font-size:60%">
+    The MLE rate matrix is sparse, which should make it easier to inteperpret.
+</div>
+
+<div style="float:right; width:45%">
+<img width=100% src="figures/figure-10.png">
+<p style="font-size:60%">
+    We can monitor the convergence of individual elements of the rate matrix.
+</div>
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Conclusions</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><mathjax>$$
+\frac{dp_t}{dt} = p\mathbf{K}  \hspace{0.7in}vs.\hspace{0.7in} p_{t+\tau} = p_t \mathbf{T}(\tau)
+$$</mathjax></p>
+<ul>
+<li>Continuous-time models are more natural scientifically<ul>
+<li>But a little trickier to estimate statistically.</li>
+<li>We've fixed that.</li>
+</ul>
+</li>
+<li>The resulting models<ul>
+<li>A little sparser &amp; easier to interpret.</li>
+</ul>
+</li>
+<li>Implemented in MSMBuilder</li>
+</ul></article>
+ 
+</slide>
+
+
+<slide class="thank-you-slide segue nobackground">
+  <!-- <aside class="gdbar right"><img src="images/google_developers_icon_128.png"></aside> -->
+  <article class="flexbox vleft auto-fadein">
+    <h2> Thanks everyone!</h2>
+    <p> Especially Muneeb, Matt, Christian, T.J., Vijay.</p>
+  </article>
+  <p data-config-contact class="auto-fadein"> <span>www</span><a href="http://msmbuilder.org">msmbuilder.org</a><br/> <span>github</span><a href="http://github.com/msmbuilder/msmbuilder">msmbuilder</a></span></p>
+  </p>
+</slide>
+
+<slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
