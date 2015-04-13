@@ -1,5 +1,7 @@
 language: python
 
+sudo: false
+
 python:
     - "3.4"
 
@@ -15,4 +17,4 @@ script: "make publish"
 
 after_success:
   - '[[ "$TRAVIS_BRANCH" == "master" ]] && make s3_upload'
-    
+
