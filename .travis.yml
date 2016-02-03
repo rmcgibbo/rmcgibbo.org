@@ -1,7 +1,5 @@
 language: python
-
 sudo: false
-
 python:
     - "3.4"
 
@@ -15,6 +13,14 @@ install: "pip install -r requirements.txt"
 
 script: "make publish"
 
-after_success:
-  - '[[ "$TRAVIS_BRANCH" == "master" ]] && make s3_upload'
+deploy:
+  provider: script
+  access_key_id:
+    secure: "erx0Hz/S+MwsWPHkVDNDeqCwwlHdR8/UuaSQ4xc5FwUgCb5AGGpp6vy4e7bcz3ikfvma0MSU7e4nliE+f8sb2jiNEs1mbh/7Oiw078lXDr4coGFaGraK5B4RIZegDqJhiBH8oI7irAj1Qsc9R5d7UxQdQzBzeGskL/GvU7jhWvE="
+  aws_secret_access_key:
+    secure: "kB/pDnhKWoFppSk2L9cYGPCENAoDxlFD59RQdhUDD2LGyeVDX4B/28ZWsVLDqKjhFk0QoQGVWZHbykN97uQqcipwgi748WrSoVC1N0a3E7XG51LpkmdgauzS1+PIKXaYEuSv6qj1fYheuc2GJLa13Tnz6fPn+ERt/kTtz4Hi10o="
+  script: tools/deploy.sh
+  on:
+      branch: master
+
 

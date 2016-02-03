@@ -5,7 +5,7 @@ import os
 
 AUTHOR = u'Robert T. McGibbon'
 SITENAME = u'rmcgibbo'
-SITEURL = 'http://blog.rmcgibbo.org'
+SITEURL = 'https://rmcgibbo.org'
 #THEME = os.path.expanduser('~/projects/pelican-themes/pelican-mockingbird')
 THEME = 'theme'
 TWITTER_USERNAME = '@rmcgibbo'
