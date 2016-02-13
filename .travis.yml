@@ -29,5 +29,5 @@ script:
   - make publish
 
 after_success:
-  - bash tools/deploy.sh
-  - bash tools/renew-ssl.sh
+  - ./tools/deploy.sh
+  - ./tools/renew-ssl.sh
