@@ -23,10 +23,10 @@ install:
   - conda create --yes -n py27 python=2.7
 
 script:
-  - . activate py34
+  - source activate py34
   - pip install -r requirements.txt
-  - "make publish"
+  - make publish
 
 after_success:
-  - tools/renew-ssl.sh
-  - tools/deploy.sh
+  - bash tools/deploy.sh
+  - bash tools/renew-ssl.sh
