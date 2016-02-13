@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x -e
 RENEW_CERTIFICATE_WITHIN_DAYS="100"
 SERVER_DOMAIN="rmcgibbo.org"
 CLOUDFRONT_DISTRIBUTION_ID="E1JZXZ946OZEEL"
@@ -22,18 +22,11 @@ DAYS_REMAINING=$(datediff "$CERT_END_DATE" now)
 
 if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
     echo "Renewing SSL certificate!"
-    MINICONDA=Miniconda2-latest-Linux-x86_64.sh
-    MINICONDA_MD5=$(curl -s http://repo.continuum.io/miniconda/ | grep -A3 $MINICONDA | sed -n '4p' | sed -n 's/ *<td>\(.*\)<\/td> */\1/p')
-    wget http://repo.continuum.io/miniconda/$MINICONDA
-    if [[ $MINICONDA_MD5 != $(md5sum $MINICONDA | cut -d ' ' -f 1) ]]; then
-        echo "Miniconda MD5 mismatch"
-        exit 1
-    fi
-    bash $MINICONDA -b -p $HOME/miniconda/
-    $HOME/miniconda/bin/conda install --yes botocore boto3 zope.interface pyopenssl psutil pytz cryptography
-    $HOME/miniconda/bin/pip install letsencrypt==0.4
-    $HOME/miniconda/bin/pip install letsencrypt-s3front==0.1.3
-    sudo $HOME/miniconda/bin/letsencrypt --agree-tos -a letsencrypt-s3front:auth \
+    source activate py27
+    conda install --yes botocore boto3 zope.interface pyopenssl psutil pytz cryptography werkzeug mock
+    pip install letsencrypt==0.4
+    pip install letsencrypt-s3front==0.1.3
+    sudo letsencrypt --agree-tos -a letsencrypt-s3front:auth \
         --letsencrypt-s3front:auth-s3-bucket $S3_BUCKET_NAME \
         -i letsencrypt-s3front:installer \
         --letsencrypt-s3front:installer-cf-distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
