@@ -63,7 +63,8 @@ publish:
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 s3_upload: publish
-	@: s3cmd --guess-mime-type sync $(OUTPUTDIR)/ s3://$(S3_BUCKET) --access_key=$(shell echo $$AWS_ACCESS_KEY_ID) --secret_key=$(shell echo $$AWS_ACCESS_KEY_ID)
+	@s3cmd --guess-mime-type sync $(OUTPUTDIR)/ s3://$(S3_BUCKET) --access_key=$(shell echo $$AWS_ACCESS_KEY_ID) --secret_key=$(shell echo $$AWS_SECRET_ACCESS_KEY)
+
 
 
 
