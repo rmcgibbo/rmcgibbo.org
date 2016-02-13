@@ -30,9 +30,9 @@ if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
         exit 1
     fi
     bash $MINICONDA -b -p $HOME/miniconda/
-    $HOME/miniconda/pip install letsencrypt==0.4
-    $HOME/miniconda/pip install letsencrypt-s3front==0.1.3
-    $HOME/miniconda/letsencrypt --agree-tos -a letsencrypt-s3front:auth \
+    $HOME/miniconda/bin/pip install letsencrypt==0.4
+    $HOME/miniconda/bin/pip install letsencrypt-s3front==0.1.3
+    $HOME/miniconda/bin/letsencrypt --agree-tos -a letsencrypt-s3front:auth \
         --letsencrypt-s3front:auth-s3-bucket $S3_BUCKET_NAME \
         -i letsencrypt-s3front:installer \
         --letsencrypt-s3front:installer-cf-distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
