@@ -26,9 +26,10 @@ install:
 script:
   - source activate py34
   - pip install -r requirements.txt
-  - pip install s3cmd
   - make publish
 
 after_success:
+  - source activate py27
+  - pip install s3cmd
   - make s3_upload
   - bash tools/renew-ssl.sh
