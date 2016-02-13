@@ -19,8 +19,8 @@ install:
     fi;
     bash $MINICONDA -b -p $HOME/miniconda
   - export PATH=$HOME/miniconda/bin:$PATH
-  - conda create -n py34 python=3.4
-  - conda create -n py27 python=2.7
+  - conda create --yes -n py34 python=3.4
+  - conda create --yes -n py27 python=2.7
 
 script:
   - . activate py34
