@@ -26,7 +26,7 @@ if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
     conda install --yes botocore boto3 zope.interface pyopenssl psutil pytz cryptography werkzeug mock
     pip install letsencrypt==0.4 letsencrypt-s3front==0.1.3
     LETSENCRYPT=$(which letsencrypt)
-    sudo ${LETSENCRYPT} --agree-tos -a letsencrypt-s3front:auth \
+    sudo ${LETSENCRYPT} --agree-tos  --renew-by-default --text -a letsencrypt-s3front:auth \
         --letsencrypt-s3front:auth-s3-bucket $S3_BUCKET_NAME \
         -i letsencrypt-s3front:installer \
         --letsencrypt-s3front:installer-cf-distribution-id $CLOUDFRONT_DISTRIBUTION_ID \

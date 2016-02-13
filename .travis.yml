@@ -8,7 +8,7 @@ env:
     - secure: "hAYRMpDDm6oMZbWHcLbucAcb2KdoIrfZMjoT0rkpjA8VWDwV5K07tcacziVeiR1MgtmHARx0ZI9vrO5Qu+z8/Gui0U564RWoTq9UAlIBVN6Ee83AdoVGR6ZyxoqAByviYZumvbW6rG6B1u9qyEJoZ27tHPSrwm71YNpqkzVE+3s="
 
 install:
-  - sudo apt-get update && sudo apt-get install -y dialog
+  # - sudo apt-get update && sudo apt-get install -y dialog
   - >
     MINICONDA=Miniconda2-latest-Linux-x86_64.sh;
     MINICONDA_MD5=$(curl -s http://repo.continuum.io/miniconda/ | grep -A3 $MINICONDA | sed -n '4p' | sed -n 's/ *<td>\(.*\)<\/td> */\1/p');
