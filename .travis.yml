@@ -20,7 +20,7 @@ install:
     bash $MINICONDA -b -p $HOME/miniconda
   - export PATH=$HOME/miniconda/bin:$PATH
   - conda create --yes -n py34 python=3.4
-  - conda create --yes -n py27 python=2.7
+  - conda create --yes -n py27 python=2.7 boto
 
 script:
   - source activate py34
@@ -28,5 +28,6 @@ script:
   - make publish
 
 after_success:
+  - source activate py27
   - bash tools/deploy.sh
   - bash tools/renew-ssl.sh

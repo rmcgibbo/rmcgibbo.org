@@ -23,7 +23,6 @@ DAYS_REMAINING=$(datediff "$CERT_END_DATE" now)
 
 if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
     echo "Renewing SSL certificate!"
-    source activate py27
     conda install --yes botocore boto3 zope.interface pyopenssl psutil pytz cryptography werkzeug mock
     pip install letsencrypt==0.4 letsencrypt-s3front==0.1.3
     LETSENCRYPT=$(which letsencrypt)
