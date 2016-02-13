@@ -3,6 +3,7 @@ RENEW_CERTIFICATE_WITHIN_DAYS="100"
 SERVER_DOMAIN="rmcgibbo.org"
 CLOUDFRONT_DISTRIBUTION_ID="E1JZXZ946OZEEL"
 S3_BUCKET_NAME="rmcgibbo.org"
+MY_EMAIL_ADDRESS="rmcgibbo@gmail.com"
 
 # difference between two dates
 datediff() {
@@ -30,7 +31,6 @@ if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
         --letsencrypt-s3front:auth-s3-bucket $S3_BUCKET_NAME \
         -i letsencrypt-s3front:installer \
         --letsencrypt-s3front:installer-cf-distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
-        -d $SERVER_DOMAIN
-    cat letsencrypt.log
+        -d $SERVER_DOMAIN --email $MY_EMAIL_ADDRESS
 fi
 
