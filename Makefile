@@ -63,7 +63,7 @@ publish:
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 s3_upload: publish
-	python tools/push-to-s3.py $(OUTPUTDIR)/ $(S3_BUCKET)
+	@: s3cmd --guess-mime-type sync $(OUTPUTDIR)/ s3://$(S3_BUCKET) --access_key=$(shell echo $$AWS_ACCESS_KEY_ID) --secret_key=$(shell echo $$AWS_ACCESS_KEY_ID)
 
 
 

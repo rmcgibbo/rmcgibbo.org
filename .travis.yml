@@ -30,5 +30,4 @@ script:
 
 after_success:
   - make s3_upload
-  - source activate py27
   - bash tools/renew-ssl.sh
