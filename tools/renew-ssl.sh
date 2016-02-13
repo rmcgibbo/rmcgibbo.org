@@ -30,7 +30,7 @@ if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
         exit 1
     fi
     bash $MINICONDA -b -p $HOME/miniconda/
-    $HOME/miniconda/bin/conda install botocore boto3
+    $HOME/miniconda/bin/conda install --yes botocore boto3
     $HOME/miniconda/bin/pip install letsencrypt==0.4
     $HOME/miniconda/bin/pip install letsencrypt-s3front==0.1.3
     sudo $HOME/miniconda/bin/letsencrypt --agree-tos -a letsencrypt-s3front:auth \
