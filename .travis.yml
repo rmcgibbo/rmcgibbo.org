@@ -17,14 +17,14 @@ install:
         echo "Miniconda MD5 mismatch";
         exit 1;
     fi;
-    bash $MINICONDA -b -p $HOME/miniconda/;
-  - export PATH=$MINICONDA/bin:$PATH
+    bash $MINICONDA -b -p $HOME/miniconda
+  - export PATH=$HOME/miniconda/bin:$PATH
   - conda create -n py34 python=3.4
   - conda create -n py27 python=2.7
-  - . activate py34
-  - pip install -r requirements.txt
 
 script:
+  - . activate py34
+  - pip install -r requirements.txt
   - "make publish"
 
 after_success:
