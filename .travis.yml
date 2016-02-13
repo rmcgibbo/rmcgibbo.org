@@ -28,6 +28,6 @@ script:
   - make publish
 
 after_success:
+  - make s3_upload
   - source activate py27
-  - bash tools/deploy.sh
   - bash tools/renew-ssl.sh
