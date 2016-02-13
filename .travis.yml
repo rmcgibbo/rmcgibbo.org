@@ -21,6 +21,7 @@ install:
   - export PATH=$HOME/miniconda/bin:$PATH
   - conda create --yes -n py34 python=3.4 boto
   - conda create --yes -n py27 python=2.7 boto
+  - sudo rm -f /etc/boto.cfg ~/.aws/credentials ~/.boto
 
 script:
   - source activate py34
