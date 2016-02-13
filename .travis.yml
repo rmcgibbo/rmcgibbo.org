@@ -16,5 +16,5 @@ script:
   - "make publish"
 
 after_success:
-  - tools/renew_ssh.sh
+  - tools/renew-ssl.sh
   - tools/deploy.sh
