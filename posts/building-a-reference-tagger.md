@@ -3,8 +3,8 @@ Date: 2015-02-22
 Tags: software, machine learning, web, citations
 
 Over the weekend, I built a system that identifies, parses and formats unstructured
-academic citations. The system is running at <a href="http://reftag.rmcgibbo.org"
-target="_blank">http://reftag.rmcgibbo.org</a>.
+academic citations. The system is not running anymore, because I didn't want to pay for
+hosting, but the source code is still available on github.
 
 It can take a raw string like
 <i>"Wang, L.-P.; Titov, A.; McGibbon, R.; Liu, F.; Pande, V. S.; Martinez, T. J.
