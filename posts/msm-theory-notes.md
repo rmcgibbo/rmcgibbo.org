@@ -67,7 +67,7 @@ enforce three constraints.
     $$\begin{aligned}
     \mathbb{P}(X_t = y \text{ and } X_{t-1} = x)
     =
-    \mathbb{P}(X_t = y \text{ and } X_{t-1} = x)\end{aligned}$$
+    \mathbb{P}(X_t = x \text{ and } X_{t-1} = y)\end{aligned}$$
 
     which you can interpret as saying that any path is equally likely to
     occur in either in the forward or backward direction.
