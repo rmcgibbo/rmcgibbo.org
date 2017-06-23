@@ -1,5 +1,5 @@
 #!/bin/bash
-RENEW_CERTIFICATE_WITHIN_DAYS="10"
+RENEW_CERTIFICATE_WITHIN_DAYS="20"
 SERVER_DOMAIN="rmcgibbo.org"
 CLOUDFRONT_DISTRIBUTION_ID="E1JZXZ946OZEEL"
 S3_BUCKET_NAME="rmcgibbo.org"
@@ -35,6 +35,6 @@ if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
         --letsencrypt-s3front:installer-cf-distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
         -d $SERVER_DOMAIN --email $MY_EMAIL_ADDRESS
 else
-    echo "There are $DAYS_REMAINING on the SSL certificate. Not updating yet."
+    echo "There are $DAYS_REMAINING days remaining on the SSL certificate. Not updating until there are less than $RENEW_CERTIFICATE_WITHIN_DAYS days remaining."
 fi
 
