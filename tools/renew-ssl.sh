@@ -27,7 +27,7 @@ if [ "$DAYS_REMAINING" -lt "$RENEW_CERTIFICATE_WITHIN_DAYS" ]; then
     echo "Is less than cutoff of ${RENEW_CERTIFICATE_WITHIN_DAYS}"
     source activate py27
     conda install --yes botocore boto3 zope.interface pyopenssl psutil pytz cryptography werkzeug mock
-    pip install letsencrypt==0.4 letsencrypt-s3front==0.1.3
+    pip install letsencrypt letsencrypt-s3front
     LETSENCRYPT=$(which letsencrypt)
     sudo ${LETSENCRYPT} --agree-tos  --renew-by-default --text -a letsencrypt-s3front:auth \
         --letsencrypt-s3front:auth-s3-bucket $S3_BUCKET_NAME \
