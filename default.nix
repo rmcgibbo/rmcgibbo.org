@@ -20,6 +20,7 @@ pkgs.stdenv.mkDerivation {
   installPhase = ''
     make html
     mkdir -p $out
+    echo 'rmcgibbo.org' > $out/CNAME
     mv output/* $out
   '';
 }
