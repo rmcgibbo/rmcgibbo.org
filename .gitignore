@@ -3,4 +3,5 @@
 *.pyc
 output
 *.pid
-cache
+cacheresult
+result

@@ -7,8 +7,6 @@ INPUTDIR=$(BASEDIR)/posts
 OUTPUTDIR=$(BASEDIR)/output
 CONFFILE=$(BASEDIR)/pelicanconf.py
 
-S3_BUCKET=rmcgibbo.org
-
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	PELICANOPTS += -D
@@ -62,10 +60,4 @@ stopserver:
 publish:
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
-s3_upload: publish
-	s3cmd --guess-mime-type sync $(OUTPUTDIR)/ s3://$(S3_BUCKET) --access_key=$(shell echo $$AWS_ACCESS_KEY_ID) --secret_key=$(shell echo $$AWS_SECRET_ACCESS_KEY)
-
-
-
-
-.PHONY: html help clean regenerate serve devserver publish s3_upload
+.PHONY: html help clean regenerate serve devserver publish
