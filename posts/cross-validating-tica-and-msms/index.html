@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>rmcgibbo — Cross-validating tICA and MSMs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../theme/css/main.css">
+  <meta name="author" content="Robert T. McGibbon">
+  <meta name="twitter:creator" content="@rmcgibbo">
+  <!--[if IE]>
+  <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+</head>
+<body>
+
+<div id="mastwrap" >
+<header role="banner" id="masthead" class="clearfix">
+<div id="navwrap"><nav role="navigation">
+ <a href="/" class="logo " title="Goes to homepage" alt="logo">rmcgibbo</a>
+ <ul id="topnav" class="topnav">
+     <li><a href="/" >About</a><li>
+     <li><a href="/posts" class="active">Posts</a><li>
+     <li><a href="/publications" >Publications</a><li>
+</ul>
+</nav></div>
+<div id="portrait"></div>
+<div id="bannertext">Robert T. McGibbon</div>
+</header>
+</div> <!-- mastwrap -->
+
+<div id="sitewrap">
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+    <a href="../../posts/cross-validating-tica-and-msms/" rel="bookmark" title="Permalink to Cross-validating tICA and MSMs">Cross-validating tICA and MSMs</a></h2>  
+  </header>
+  <p>Some of our new work at the intersection of chemical physics and machine
+learning on the construction of <a href="http://dx.doi.org/10.1063/1.3565032" title="Prinz et a.l">Markov models</a> is now out on arXiv and
+under review. The title of <a href="http://arxiv.org/abs/1407.8083" title="Variational cross..">our manuscript</a> is <strong>"Variational cross-validation of
+slow dynamical modes in molecular kinetics"</strong>.</p>
+<p>The question that lead down this road was</p>
+<blockquote>
+<p>"How do we perform cross-validation on tICA and MSMs (<a href="http://dx.doi.org/10.1021/ct300878a" title="Schwnates tICA">3</a>, <a href="http://dx.doi.org/10.1063/1.4811489" title="Perez-Hernandex tICA">4</a>, <a href="http://dx.doi.org/10.1063/1.3565032" title="Prinz et a.l">1</a>)?"</p>
+</blockquote>
+<h3>Brief digression: What's tICA?</h3>
+<p>tICA is a linear dimensionality reduction method for multivariate
+timeseries data that seeks to find the most slowly decelerating linear
+functions of a set of input timeseries, $\{X_t\}$. You can see the papers
+for more detail, but the gist of it comes down to solving a generalized
+eigenvalue equation,
+$$
+C(\tau) v = \lambda \Sigma v,
+$$
+where $C(\tau)$ is the <em>time lagged correlation matrix</em>, which is a matrix containing
+the average correlation of the $i$th component of the signal at time $t$ with
+the $j$th component of the signal at time $t+\tau$, and $\Sigma$ is the covariance --
+basically same idea, but without the time delay.</p>
+<p>In our application domain, protein dynamics, the input signals $\{X_t\}$ are
+usually some pre-processed (featurized) projection of our real data. We know that
+there are slowly-decorrelating degrees of freedom (e.g. reaction coordinates)
+in our data, but since tICA is restricted to identifying linear projections,
+preprocessing via nonlinear featurizations increases the power of the method.</p>
+<h3>Back to cross-validation</h3>
+<p>The eigenvectors which come out, $v$, are learned parameters that are estimated
+subject to statistical noise. Empirically, it's obvious that some featurizations
+perform better than others, and that Tikhonov regularization on $\Sigma$ can be
+critical (i.e. adding some multiple of the identity to $\Sigma$). So we're
+definitely going to need some procedure for scoring the set of tICS generated
+from one training dataset on a new test dataset.</p>
+<h3>Why isn't this obvious?</h3>
+<p>As presented in the papers that introduce the method (<a href="http://dx.doi.org/10.1021/ct300878a" title="Schwnates tICA">3</a>, <a href="http://dx.doi.org/10.1063/1.4811489" title="Perez-Hernandex tICA">4</a>), solving the
+tICA problem is a stepwise procedure -- you get one tIC at a time by a stepwise
+maximization of a series of autocorrelation functions <strong>with mounting, data
+dependent orthogonality constraints</strong>. The significance of this is that it's
+not obvious that there is any single unified objective function for the collection
+of $n&gt;1$ tICs.</p>
+<p>The problem is that during training, the tICs constructed such that
+$v_i^T \Sigma v_j = \delta_{ij}$. But since $\Sigma$ is estimated from data, if
+you try to go back and <em>score</em> a set of tICs on new data, you need to reestimate
+$\Sigma$, at which point the tICs no longer orthogonal, which is essential.
+To quote from the paper.</p>
+<blockquote>
+<p>While [previous] formulation[s] involves the stepwise optimization
+individual <em>ansatz</em> eigenfunctions with mounting orthogonality
+constraints, our approach arrives at the same result during training
+via the optimization of a single scalar functional of a collection of
+$m$ <em>ansatz</em> eigenfunctions simultaneously. This formulation uniquely
+enables the evaluation of the proposed eigenfunctions
+on new data which was held out during the fitting step, which we show
+to be essential to avoid overfitting.</p>
+</blockquote>
+<h3>So what's the solution?</h3>
+<p>You'll have to check out <a href="http://arxiv.org/abs/1407.8083" title="Variational cross..">the manuscript</a> :) Or perhaps check back here
+for another post.</p>
+  
+
+
+<p class="post-tags">
+<b>Tagged:<b>
+     <span><a href="../../tag/msms.html">MSMs</a></span>
+ /      <span><a href="../../tag/tica.html">tICA</a></span>
+ /      <span><a href="../../tag/theory.html">theory</a></span>
+ /      <span><a href="../../tag/cross-validation.html">cross validation</a></span>
+ /      <span><a href="../../tag/protein-dynamics.html">protein dynamics</a></span>
+</p>
+<div class="comments">
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_identifier = "posts/cross-validating-tica-and-msms/";
+    (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = 'http://rmcgibbo-org.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+</div>
+
+</section>
+</div>
+
+  <div id="footwrap">
+    <footer id="footer" class="clearfix">
+  <div class="footer_center">
+    <ul id="footnav">
+      <li><a href="/" title="Home">Home</a></li>
+      <li><a href="http://twitter.com/rmcgibbo">@rmcgibbo</a></li>
+    </ul>
+    <a href="#" class="back_up" title="Back to the top"><i>&uarr;</i></a>
+  </div>
+</footer>
+  </div>
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-55213879-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+extensions: ["tex2jax.js"],
+jax: ["input/TeX", "output/HTML-CSS"],
+showProcessingMessages: false,
+tex2jax: {
+  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+  displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+  processEscapes: true
+},
+TeX: {
+  extensions: ["color.js"]
+},
+"HTML-CSS": { availableFonts: ["TeX"] }
+});
+</script>
+<script type="text/javascript"
+src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+</body>
+</html>

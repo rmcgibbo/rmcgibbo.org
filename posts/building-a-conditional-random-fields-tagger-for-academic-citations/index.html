@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>rmcgibbo — Building a Conditional Random Fields Tagger for Academic Citations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../theme/css/main.css">
+  <meta name="author" content="Robert T. McGibbon">
+  <meta name="twitter:creator" content="@rmcgibbo">
+  <!--[if IE]>
+  <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+</head>
+<body>
+
+<div id="mastwrap" >
+<header role="banner" id="masthead" class="clearfix">
+<div id="navwrap"><nav role="navigation">
+ <a href="/" class="logo " title="Goes to homepage" alt="logo">rmcgibbo</a>
+ <ul id="topnav" class="topnav">
+     <li><a href="/" >About</a><li>
+     <li><a href="/posts" class="active">Posts</a><li>
+     <li><a href="/publications" >Publications</a><li>
+</ul>
+</nav></div>
+<div id="portrait"></div>
+<div id="bannertext">Robert T. McGibbon</div>
+</header>
+</div> <!-- mastwrap -->
+
+<div id="sitewrap">
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+    <a href="../../posts/building-a-conditional-random-fields-tagger-for-academic-citations/" rel="bookmark" title="Permalink to Building a Conditional Random Fields Tagger for Academic Citations">Building a Conditional Random Fields Tagger for Academic Citations</a></h2>  
+  </header>
+  <p>Over the weekend, I built a system that identifies, parses and formats unstructured
+academic citations. The system is not running anymore, because I didn't want to pay for
+hosting, but the source code is still available on github.</p>
+<p>It can take a raw string like
+<i>"Wang, L.-P.; Titov, A.; McGibbon, R.; Liu, F.; Pande, V. S.; Martinez, T. J.
+Nature Chemistry 2014, 6, 1044-1048."</i> and format it into a structured BibTeX
+record for example.</p>
+<p>This is a description of how it works, and how you can build a similar system.
+All the code that implements this system is <a href="https://github.com/rmcgibbo/reftagger">available on GitHub</a>.</p>
+<h3>1. Formulate the problem</h3>
+<p>The first step is to properly formulate the problem that we want to solve.
+This problem seemed very similar to <a href="http://en.wikipedia.org/wiki/Part-of-speech_tagging">part-of-speech tagging</a>
+in computational linguistics, so I started there.</p>
+<p>The first pre-processing step in our system will be to
+<a href="http://en.wikipedia.org/wiki/Tokenization_(lexical_analysis)">tokenize</a>
+the input query. Then we have a
+<a href="http://en.wikipedia.org/wikipediai/Structured_prediction">structured prediction</a>
+problem: given a vector of tokens, predict a tag or label associated with each token.</p>
+<p>The tags for our system will be <code>{'givenname', 'surname', 'title', 'journal',
+'page_number', 'volume', 'year', 'issue', 'None'}</code>. Each token needs to be
+assigned a label from this set.</p>
+<h3>2. Find training data</h3>
+<p>At this point, I guess you could decide to start building a big collection of
+regexes to parse all possible citation formats, but that's going
+to lead to a very brittle solution. And it would be no fun.</p>
+<p>So instead we're going to need to acquire some training data: many unstructured
+citations with the proper tags. Each data point will be a tuple, <code>(tokens, tags)</code>.</p>
+<ol>
+<li>
+<p>CrossRef API.</p>
+<p>The <a href="https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md">CrossRef REST API</a>
+  is great for getting structured information about journal articles. In
+  particular, they have a <code>/sample</code> API enpoint that returns random journal
+  articles with their DOI and metadata, which is perfect.</p>
+<p>Given a DOI, the CrossRef API also provides endpoints to return styled
+  citations in many formats, such as MLA, Chicago, American Chemical Society, etc.</p>
+<p>The challenge here is that, given the styled citation from CrossRef and
+  all of its metadata, we need to still tag every token. The right way to
+  do this, I think, would be a dynamic programming solution similar to
+  <a href="http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm">Needleman–Wunsch</a>.</p>
+</li>
+<li>
+<p>Full text HTML and XML articles.</p>
+<p>Many journals let you download articles in an HTML (or XML for PLOS) format,
+  and the markup for each reference that the paper cites is both styled
+  according to the journal's format, but also tagged. This perfect, although
+  you do need to write a slightly different scraper for each journal.</p>
+</li>
+</ol>
+<p>Using the two strategies above, I downloaded and tagged about 20,000 citations.
+The <a href="http://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a> and
+<a href="http://docs.python-requests.org/en/latest/">requests</a> libraries made this a
+lot easier than it otherwise would have been.</p>
+<h3>3. Extract features</h3>
+<p>In part-of-speech tagging, the most important feature is just the word / token
+itself, although other features (such as whether the word is capitalized) have
+been shown to be useful. For academic citations, many of the tokens like authors'
+surnames and some of the technical words in article titles are very rare and
+diverse, so we need to be able to make accurate predictions about words that
+never appear in the training set.</p>
+<p>The featurization is a good place to introduce auxiliary data. For example, the
+U.S. Census produces a list of all of the unique surnames that occurred in the
+2000 Census. Using a token's presence or absence in this list as a feature is a
+great way to introduce tailored prior information into the model, beyond what
+we could hope to capture in the training set.</p>
+<p>Similarly, I also used a list of common given names obtained from the U.S. Social
+Security Administration, and a list of academic journals and their abbreviations
+downloaded from PubMed.</p>
+<p>To help reason about rare words that appear elsewhere, such as in article titles,
+we can use <a href="http://wordnet.princeton.edu/">WordNet</a>. For each token longer than 4
+characters that appears in WordNet, I found the nearest WordNet hypernym that is
+among the most common 5,000 words in english, and used it as a feature. This
+accomplishes a kind of dimensionality reduction over word space that's sensitive
+to word meanings and their relationship.</p>
+<h3>4. Train a model</h3>
+<p>After reading a couple papers in the academic literature on POS tagging, I
+decided that the best class of models would be a Conditional Random Field (CRF).
+These models seem to get state-of-the-art or near state-of-the-art performance on
+POS tagging tasks, and equally importantly, there are a number of high quality
+open source implementations available, with reasonable documentation.</p>
+<p>I chose <a href="http://www.chokkan.org/software/crfsuite/">CRFsuite</a> and the <a href="http://python-crfsuite.readthedocs.org/en/latest/">python-crfsuite</a>
+bindings, which are as simple as</p>
+<div class="highlight"><pre><span></span><code>$ pip install python-crfsuite
+</code></pre></div>
+
+<p>Based on a 50-50 test train split, I found that overall performance sensitivity
+of the hyperparameter selection (L1 and L2 strengths, elastic-net regularization)
+was fairly low, so I didn't spend a lot of time tuning.</p>
+<p>The per-tag accuracy of the system is about 99% on the training set and 98.5%
+on the test set.</p>
+<p>I think there's still room to improve, but it's likely to come from more (and cleaner)
+training data!g</p>
+  
+
+
+<p class="post-tags">
+<b>Tagged:<b>
+     <span><a href="../../tag/software.html">software</a></span>
+ /      <span><a href="../../tag/machine-learning.html">machine learning</a></span>
+ /      <span><a href="../../tag/web.html">web</a></span>
+ /      <span><a href="../../tag/citations.html">citations</a></span>
+</p>
+<div class="comments">
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_identifier = "posts/building-a-conditional-random-fields-tagger-for-academic-citations/";
+    (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = 'http://rmcgibbo-org.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+</div>
+
+</section>
+</div>
+
+  <div id="footwrap">
+    <footer id="footer" class="clearfix">
+  <div class="footer_center">
+    <ul id="footnav">
+      <li><a href="/" title="Home">Home</a></li>
+      <li><a href="http://twitter.com/rmcgibbo">@rmcgibbo</a></li>
+    </ul>
+    <a href="#" class="back_up" title="Back to the top"><i>&uarr;</i></a>
+  </div>
+</footer>
+  </div>
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-55213879-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+extensions: ["tex2jax.js"],
+jax: ["input/TeX", "output/HTML-CSS"],
+showProcessingMessages: false,
+tex2jax: {
+  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+  displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+  processEscapes: true
+},
+TeX: {
+  extensions: ["color.js"]
+},
+"HTML-CSS": { availableFonts: ["TeX"] }
+});
+</script>
+<script type="text/javascript"
+src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+</body>
+</html>

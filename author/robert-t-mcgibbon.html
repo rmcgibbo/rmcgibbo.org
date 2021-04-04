@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>rmcgibbo - Articles by Robert T. McGibbon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../theme/css/main.css">
+  <meta name="author" content="Robert T. McGibbon">
+  <meta name="twitter:creator" content="@rmcgibbo">
+  <!--[if IE]>
+  <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+</head>
+<body>
+
+<div id="mastwrap" >
+<header role="banner" id="masthead" class="clearfix">
+<div id="navwrap"><nav role="navigation">
+ <a href="/" class="logo " title="Goes to homepage" alt="logo">rmcgibbo</a>
+ <ul id="topnav" class="topnav">
+     <li><a href="/" class="active">About</a><li>
+     <li><a href="/posts" >Posts</a><li>
+     <li><a href="/publications" >Publications</a><li>
+</ul>
+</nav></div>
+<div id="portrait"></div>
+<div id="bannertext">Robert T. McGibbon</div>
+</header>
+</div> <!-- mastwrap -->
+
+<div id="sitewrap">
+<section id="content" class="body">
+<h2 class="entry-title">Robert T. McGibbon</h2>
+
+<p> I am currently a research scientist in the force field group at D.E. Shaw Research, where I work on
+    the development of more accurate physics-based models for molecular dynamics
+    simulations.</p>
+
+<p> I earned my Ph.D. in Chemistry at Stanford University (2016),
+    where I worked with <a href="http://folding.stanford.edu/Pande/Main">Vijay Pande</a> at
+    the intersection of <b>biophysics</b> and <b>machine learning</b> on
+    quantitative statistical analysis of protein dynamics via long-timescale
+    molecular simulation and the development of parsimonious statistical models of
+    these statistical data. My thesis is available
+    <a href="https://searchworks.stanford.edu/view/11614108">here</a>.
+    I earned my bachelors at Princeton University (2011), where I studied
+    Chemistry and Computer Science. While there, I worked with
+    <a href="http://webscript.princeton.edu/~abbgroup/about_andy">Andrew Bocarsly</a>.</p>
+
+<p> In my free time, I read, follow politics, and rock climb. You can contact
+    me at <img height=18px style="position: relative; top: 4.5px;" src="static/rmcgibbo.png"/></span></p>
+
+<h2 class="entry-title">Ph.D. Research</h2>
+<p> My research at Stanford with <a href="http://folding.stanford.edu/Pande/Main">Vijay Pande</a>
+    centered around building new techniques for the quantitative statistical
+    analysis of long timescale molecular dynamics simulations, typically for
+    protein folding and conformational change.</p>
+<p> This work involved both theory, software development, and applications.
+    Aspects have involved distance metric learning, using large-margin
+    techniques, the development of novel L1-regularized hidden Markov models
+    for analysis of protein dynamics (including a massively accelerated
+    multicore and CUDA implementations), and variational methods for model
+    selection. See my <a href="/publications">publications</a> for more
+    information.</p>
+<p> Most of this research required writing new software, and
+    scalability is a central priority for our work on massive protein dynamics
+    datasets. This work is all publicly available on <a href="http://github.com/rmcgibbo">github</a>. </p>
+
+</section>
+</div>
+
+  <div id="footwrap">
+    <footer id="footer" class="clearfix">
+  <div class="footer_center">
+    <ul id="footnav">
+      <li><a href="/" title="Home">Home</a></li>
+      <li><a href="http://twitter.com/rmcgibbo">@rmcgibbo</a></li>
+    </ul>
+    <a href="#" class="back_up" title="Back to the top"><i>&uarr;</i></a>
+  </div>
+</footer>
+  </div>
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-55213879-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+extensions: ["tex2jax.js"],
+jax: ["input/TeX", "output/HTML-CSS"],
+showProcessingMessages: false,
+tex2jax: {
+  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+  displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+  processEscapes: true
+},
+TeX: {
+  extensions: ["color.js"]
+},
+"HTML-CSS": { availableFonts: ["TeX"] }
+});
+</script>
+<script type="text/javascript"
+src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+</body>
+</html>

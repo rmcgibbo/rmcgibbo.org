@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>rmcgibbo - Robert T. McGibbon</title><link href="https://rmcgibbo.org/" rel="alternate"></link><link href="https://rmcgibbo.org/feeds/robert-t-mcgibbon.atom.xml" rel="self"></link><id>https://rmcgibbo.org/</id><updated>2016-02-14T00:00:00-08:00</updated><entry><title>Notes on the Theory of Markov Chains in a Continuous State Space</title><link href="https://rmcgibbo.org/posts/notes-on-the-theory-of-markov-chains-in-a-continuous-state-space/" rel="alternate"></link><published>2016-02-14T00:00:00-08:00</published><updated>2016-02-14T00:00:00-08:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2016-02-14:/posts/notes-on-the-theory-of-markov-chains-in-a-continuous-state-space/</id><summary type="html">&lt;p&gt;These are lecture notes that were delivered as a seminar (chalk talk) at the Pande Group lab meeting on February 12, 2016. They introduce some aspects theory of reversible Markov chains in a continuous state space, with an orientation towards models of the classical conformational dynamics of molecular systems.&lt;/p&gt;
+&lt;p&gt;The …&lt;/p&gt;</summary><content type="html">&lt;p&gt;These are lecture notes that were delivered as a seminar (chalk talk) at the Pande Group lab meeting on February 12, 2016. They introduce some aspects theory of reversible Markov chains in a continuous state space, with an orientation towards models of the classical conformational dynamics of molecular systems.&lt;/p&gt;
+&lt;p&gt;The topics discussed include the propagator and transfer operator, their
+associated eigenvalues and eigenfunctions and the physical
+interpretation thereof, the variational theorem for conformational
+dynamics, and the estimation of these eigenfunctions by time-structure
+independent components analysis (tICA) and Markov state models (MSMs).&lt;/p&gt;
+&lt;h3&gt;The setting&lt;/h3&gt;
+&lt;p&gt;Take a discrete-time stochastic process, $X_t$, for
+$t={0,1,2,\ldots}$, in some general (possibly Euclidean, but it
+doesn’t really matter) space, $X_t \in \Omega$, like
+$\Omega = \mathbb{R}^{3N}$, where $N$ is the number of atoms. The rule
+for the dynamics that we should have in mind is some Langevin /
+Smoluchoswki diffusion sampled at a finite interval/timestep, or
+thermostated Hamiltonian dynamics sampled at a finite interval/timestep,
+but we won’t be too specific here.&lt;/p&gt;
+&lt;p&gt;But simply saying that our processes is &lt;em&gt;any&lt;/em&gt; discrete-time stochastic
+process is too general to really make any progress, so we’re going to
+enforce three constraints.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The stochastic process is assumed to be Markov:&lt;/p&gt;
+&lt;p&gt;This means, roughly, that knowing the entire past history doesn’t
+help you any more than knowing where it was last timestep.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{P}(X_{t+1} | X_{t}, X_{t-1}, X_{t-2}, \ldots) = \mathbb{P}(X_{t+1} | X_{t})\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;The function $\mathbb{P}(X_{t+1} | X_{t})$ is important, so we’ll
+call this expression “transition density kernel” and define a little
+shorthand for it.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p(x, y) \equiv \mathbb{P}(X_t = y | X_{t-1} = x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Note that we are here assuming that the function $p(x,y)$ doesn’t
+change as a function of $t$. This is called time-homogeneity of the
+process.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The process is ergodic. This means that there are no dynamically
+    disconnected parts of phase space. As $t\rightarrow\infty$, every
+    state will be visited infinitely often. And the total fraction of an
+    infinitely long trajectory that the walker spends in any voxel $dx$
+    is $\mu(x)dx$. This is called the stationary distribution, and it’s
+    the equilibrium distribution of some thermodynamic ensemble that the
+    system is sampling (NpT, NVT, etc). For MD at constant temperature,
+    it’s the Boltzmann distribution.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Furthermore, the assume that the stochastic processes is
+    &lt;em&gt;reversible&lt;/em&gt; with respect to a measure $\mu(x)$. The condition for
+    reversibility&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mu(x) \cdot p(x,y) = \mu(y) \cdot p(y,x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Reversibility is a sort of &lt;em&gt;symmetry&lt;/em&gt; between the forward and
+backward directions of time. It’s equivalent to the statement that&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{P}(X_t = y \text{ and } X_{t-1} = x)
+=
+\mathbb{P}(X_t = x \text{ and } X_{t-1} = y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;which you can interpret as saying that any path is equally likely to
+occur in either in the forward or backward direction.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These assumptions are rigorously valid for the processes we simulate
+with molecular dynamics. The Markov property really comes directly from
+Newton’s equations of motion.&lt;/p&gt;
+&lt;h3&gt;Ensembles&lt;/h3&gt;
+&lt;p&gt;The transition density kernel $p(x,\cdot)$ gives conditional
+distribution over where the process will advance to in the future, but
+it requires knowing exactly what the current position is, $x$.
+Generally, we’re not going to know exactly where the particle is at any
+time. Even if were to &lt;em&gt;start&lt;/em&gt; by knowing exactly where the particle is,
+after one step it would have some spread.&lt;/p&gt;
+&lt;p&gt;So, if we have some belief of where the particle is at time $t$, and we
+know the rule for the dynamics $p(x,y)$, what should our belief be about
+where the particle will be one step forward in the future? How do we
+update (propagate) our belief?&lt;/p&gt;
+&lt;p&gt;Or, for an equivalent view, we might have an ensemble of
+indistinguishable copies of the system, and want to propagate the
+ensemble forward in time. Describe our current belief (or ensemble)
+using a probability distribution&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p_t(x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This probability distribution is zero or positive everywhere on
+$\Omega$, and always needs to be normalized to 1.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\int_\Omega dx \; p_t(x) = 1.\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Great. Okay, at time $t+1$, our new distribution will be&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p_{t+1}(y) = \int_\Omega dx \; p_{t}(x) \cdot p(x, y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This should make sense. We’re taking our distribution over space, and
+for each little element of probability mass, propagating it forward in
+time according to the transition density kernel.&lt;/p&gt;
+&lt;p&gt;What’s going on here? We’re taking a function over $\Omega$, $p_t(x)$,
+and performing some operation on it that returns a new function over
+$\Omega$, $p_{t+1}(x)$.&lt;/p&gt;
+&lt;p&gt;An object that transforms one function into another function is called
+an operator. So we can say, $p_t(x)$ is being “operated on”. Write this
+in a &lt;strong&gt;shorthand&lt;/strong&gt; notation as&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p_{t+1} = \mathcal{Q} \circ p_t\end{aligned}$$&lt;/p&gt;
+&lt;h3&gt;Propagator&lt;/h3&gt;
+&lt;p&gt;We’re going to call $\mathcal{Q}$ the “propagator”. What &lt;strong&gt;properties&lt;/strong&gt;
+does the propagator have? Can we use any of these properties to make a
+&lt;strong&gt;simple model&lt;/strong&gt; of the propagator?&lt;/p&gt;
+&lt;p&gt;First, remember that $p(x,y)$ had a kind of symmetry with $p(y,x)$. It’s
+not exactly symmetry, but reversibility is pretty close.&lt;/p&gt;
+&lt;p&gt;So $\mathcal{Q}$ should have a kind of symmetry too. How to write this
+for operators? This is called being &lt;strong&gt;self-adjoint&lt;/strong&gt;. The general
+property we want is that for any two functions $f$ and $g$ that exist in
+this space,&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle f | \mathcal{Q} \circ g \rangle =
+\langle \mathcal{Q} \circ f | g \rangle
+\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;For some &lt;em&gt;inner product&lt;/em&gt;, $\langle \cdot | \cdot \rangle$. Maybe it’s
+not clear that this equation actually means that $\mathcal{Q}$ is
+symmetric, so let’s show that.&lt;/p&gt;
+&lt;p&gt;First, note the following conceptual mapping between operators and
+Hilbert spaces and regular linear algebra matrices and vector spaces.
+Basically, the following concepts are equivalent to one another.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Matrix $\rightarrow$ Operator&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Vector $\rightarrow$ Function&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Dot product $\rightarrow$ Inner product&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Matrix vector product $\rightarrow$ Operator application.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With a matrix, you might verify that it is symmetric by looking at the
+$i$, $j$ and $j$, $i$ elements. But for operators, the only way we’re
+allowed to interact with the operator is by applying it to a function.
+So how would you verify if a matrix is symmetric if you couldn’t
+actually check the elements, and all you can do is matrix-vector product
+(operator applications), and dot products (inner products).&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+v A w = \sum_{ij} v_i A_{ij} w_j
+\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+(Av)^T w =  \sum_{ij} v_{i} A_{ji} w_j
+\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;If these two things are going to be equal, $B_{ij}$ has got to be equal
+to $A_{ij}$. This is the same idea for operators in how the definition
+of self-adjoint works. The stuff in the transpose is the bra, and the
+stuff on the right is the ket.&lt;/p&gt;
+&lt;p&gt;Okay, so back to the propagator. I’m going to show the answer first,
+which is that in order for $\mathcal{Q}$ to be self-ajoint, we need to
+use a special weighted inner product.&lt;/p&gt;
+&lt;p&gt;The weighted inner product we want when working with $\mathcal{Q}$ is
+$\langle f | g \rangle_{\mu^{-1}}$. This inner product is defined as&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle f | g \rangle_{\mu^{-1}} = \int_\Omega dx\; \frac{f(x) \cdot g(x)}{\mu(x)}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Now, lets verify the “self-adjointness” of $\mathcal{Q}$ according to
+this inner product. First take the left hand side of the equation
+defining “self-adjointness”:&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle f | \mathcal{Q} \circ g \rangle_{\mu^{-1}} &amp;amp;= \left\langle f \middle| \int_\Omega dx\; g(x) p(x, y) \right\rangle_{\mu^{-1}} \\
+&amp;amp;= \int_\Omega dy\; \frac{f(y) \cdot \left( \int_\Omega dx\; g(x) p(x, y)\right)}{\mu(y)}\\
+&amp;amp;= \int_{\Omega \times \Omega} dx dy\; \frac{f(y) g(x) p(x, y)}{\mu(y)}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Similarly, for the other side of the equation, we have&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle \mathcal{Q} \circ f | g \rangle_{\mu^{-1}} &amp;amp;= \left\langle \int_\Omega dy\; f(y) p(y,x) \middle|g \right\rangle_{\mu^{-1}}\\
+&amp;amp;= \int_\Omega dx \frac{\left(\int_\Omega dy\; f(y) p(y,x)\right) g(x)}{\mu(x)} \\
+&amp;amp;= \int_{\Omega \times \Omega} dx dy\; \frac{f(y)g(x)p(y,x)}{\mu(x)}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;All the terms match up here as long as we can do a necessary flip from
+$p(x,y)$ to $p(y,x)$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\frac{p(x,y)}{\mu(y)} = \frac{p(y,x)}{\mu(x)} \Longrightarrow \mu(x)p(x,y)  = \mu(y) p(y, x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;which is exactly our detailed balance condition.&lt;/p&gt;
+&lt;p&gt;Why is this important? Well, self-adjoint operator has real eigenvalues,
+real eigenvectors, a complete orthonormal basis, and all of this other
+stuff that’s going to be really important for any of the theory to work.&lt;/p&gt;
+&lt;h3&gt;Transfer operator&lt;/h3&gt;
+&lt;p&gt;There’s a trick used in the definition of MSMs and tICA, which is define
+another operator called the transfer operator in such a way that it is
+self-adjoint with a different norm.&lt;/p&gt;
+&lt;p&gt;It’s a little bit clever, but once you see how it works you’ll get the
+hang of it. Instead of always considering the “propagation” of $p_t$ to
+$p_{t+1}$, define a new quantity called $u_t$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+u_t(x) = \frac{p_t(x)}{\mu(x)}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;We’ve been assuming that you know $\mu(x)$, so at any point if you have
+an ensemble $p_t$ you can always just rescale it then you have $u_t$, so
+they’re pretty much equivalent.&lt;/p&gt;
+&lt;p&gt;So, if your current (scaled) belief about the particle’s location is
+$u_t$, how does this get updated by one step of dynamics. Well, you can
+basically round-trip to it to $p_t$, propagate
+$p_t \rightarrow p_{t+1}$, and then rescale it to back out $u_t$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+u_{t+1}(y) = (\mathcal{T} \circ u_t)(y) = \frac{1}{\mu(y)} \int_\Omega dx\; \left(u_t(x) \mu(x)\right) p(x, y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;And that’s the definition of the transfer operator, $\mathcal{T}$. It’s
+the operator that evolves the function $u_t$ forward to $u_{t+1}$. Why
+is this helpful? Well, $\mathcal{T}$ is self-adjoint in an easier way,
+without a special norm&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle \mathcal{T} \circ f | g \rangle = \langle f, \mathcal{T} \circ g \rangle\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Let’s go through the reason. For the left hand side,&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+    \langle \mathcal{T} \circ f | g \rangle  &amp;amp;= \left\langle \left(\frac{1}{\mu(y)} \int_\Omega dx\; f(x)\mu(x)p(x,y) \right) \middle| g \right\rangle \\
+    &amp;amp;= \int_{\Omega \times \Omega} dx dy\; \frac{f(x) g(y) p(x, y)}{\mu(y)}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;And for the right hand side,&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+    \langle f | \mathcal{T} \circ g \rangle  &amp;amp;= \left\langle f \middle| \left(\frac{1}{\mu(x)} \int_\Omega dy\; g(y)\mu(y)p(y,x) \right) \right\rangle \\
+    &amp;amp;= \int_{\Omega \times \Omega} dx dy\; \frac{f(x) g(y) p(y, x)}{\mu(x)}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Again, we should see the same trick where reversibility of the
+transition kernel makes these equal.&lt;/p&gt;
+&lt;h3&gt;Eigenfunctions&lt;/h3&gt;
+&lt;p&gt;Okay, we’ve got these two basically-equivalent operators. And we’ve seen
+one property they share. They basically describe everything about the
+dynamics. How can you build a numerical model of these guys? They’re
+infinite dimensional, so we’re going to have to cut some corners. How
+should they be approximated?&lt;/p&gt;
+&lt;p&gt;First key property that is implied by self-adjoint is that they have a
+complete basis of orthonormal eigenfunctions. Let’s unpack that
+statement.&lt;/p&gt;
+&lt;p&gt;First, for the propagator. An eigenfunction is defined a function that
+satisfied the following equation:&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathcal{Q} \circ \phi_i = \lambda_i \phi_i\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This is a pretty excellent property, because in general computing
+$\mathcal{Q} \circ f$ is hard – you have to integrate over all space and
+such. But this means that if your $f$ happens to be one of the
+eigenfunctions, all that $\mathcal{Q} \circ f$ does is just &lt;strong&gt;rescale&lt;/strong&gt;
+it.&lt;/p&gt;
+&lt;p&gt;Also, there are a countably infinite number of eigenfunctions. And, they
+are orthogonal and normalized. That means (remember the inner product)
+that for all integers $i$, $j$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle \phi_i | \phi_j \rangle_{\mu^{-1}}= \begin{cases}
+0 &amp;amp; \text{ if } i \neq j \\
+1 &amp;amp; \text{ if } i = j
+\end{cases}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;The proof of this is pretty easy, and it uses the self-adjointness.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\lambda_j \langle \phi_i | \phi_j \rangle_{\mu^{-1}} &amp;amp;= \langle \phi_i | \mathcal{Q} \circ \phi_j \rangle_{\mu^{-1}}  \\
+&amp;amp;= \langle \mathcal{Q} \circ \phi_i | \phi_j \rangle_{\mu^{-1}} \\
+&amp;amp;= \lambda_i \langle \phi_i | \phi_j \rangle_{\mu^{-1}}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;So
+$(\lambda_i-\lambda_j)\langle \phi_i | \phi_j \rangle_{\mu^{-1}} = 0$.&lt;/p&gt;
+&lt;p&gt;This means that basically the eigenfunctions are &lt;strong&gt;perpendicular&lt;/strong&gt;. We
+should be able to guess one of these eigenfunctions. It’s $\mu$. Why?
+Because if you’re current system is at equilibrium, if you propagate it
+forward by one step, it should still be at equilibrium. That means the
+eigenvalue should be 1. How do we check this mathematically?&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+(\mathcal{Q} \circ \mu)(y) = \int_\Omega dx\; \mu(x) p(x, y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Use the detailed balance trick to change this to&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+(\mathcal{Q} \circ \mu)(y) = \int_\Omega dx\; \mu(y) p(y, x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;And then we can pull out $\mu(y)$ since we’re integrating over $x$, and
+get&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+(\mathcal{Q} \circ \mu)(y) &amp;amp;= \mu(y) \int_\Omega dx; p(y, x) \\
+&amp;amp;= 1 \cdot \mu(y)
+\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;So $\mu$ is an eigenvector with associated eigenvalue $1$, as a
+consequence of detailed balance, and the fact that $p(y, \cdot)$ is a
+proper probability distribution. These properties imply more stuff too.
+The Perron-Frobenius theorem implies that all of the eigenvectors other
+than the first need to be between $-1$ and $1$ too.&lt;/p&gt;
+&lt;p&gt;For the transfer operator, we have something pretty similar. Let’s
+derive it:&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathcal{Q} \circ \phi_i = \lambda_i \phi_i = \int_\Omega dx\; \phi_i(x) p(x,y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Now, lets define a new set of functions
+$\psi_i(x) \equiv \phi_i(x) / \mu(x)$, so that the equation above can be
+written as&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\lambda_i \psi_i(y)\mu(y) = \int_\Omega dx\;
+\psi_i(x)\mu(x) p(x,y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;If you move the factor of $\mu(y)$ to the denominator on the r.h.s, then
+this is the definition of the transfer operator, so we have&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\lambda_i \psi_i = \mathcal{T} \circ \psi_i\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This means that the $\psi$ are eigenfunctions of $\mathcal{T}$, and that
+it has the same eigenvalues. The normalization condition for $\psi_i$ is
+that for any $i$, $j$,&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle \psi_i | \psi_j \rangle_\mu = \delta_{ij}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Note that here the measure contains a $\mu$ to the positive 1, not
+negative one power. Prove this to yourself by re-writing the
+normalization condition for the $\phi_i$s that we proved before in terms
+of $\psi_i$s.&lt;/p&gt;
+&lt;h3&gt;Spectral decomposition&lt;/h3&gt;
+&lt;p&gt;Let’s use the eigenfunctions to write out a more explicit formula for
+$\mathcal{Q} \circ p$. For any initial distribution $p$, we write it in
+the &lt;strong&gt;eigenvector basis&lt;/strong&gt; as some&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p(x) = \sum_{i=1}^\infty a_i \phi_i(x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;The scalar values $a$s are expansion coefficients – we’ve decomposed our
+function into components along each of the eigenfunctions, like writing
+a vector with an $x$ components, $y$ component, etc. How would we
+calculate these expansion coefficients? The orthonormality of the
+eigenfunctions makes this easy.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\langle p | \phi_j \rangle_{\mu^{-1}} = \left \langle  \sum_{i=1}^\infty a_i \phi_i(x) \middle | \phi_j \right \rangle_{\mu^{-1}} = a_j\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Now, we want&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p_{t+1} = (\mathcal{Q} \circ p)(x) &amp;amp;= \mathcal{Q} \circ \left( \sum_{i=1}^\infty a_i \phi_i(x) \right) \\
+&amp;amp;= \sum_{i=1}^\infty a_i \left( \mathcal{Q} \circ \phi_i(x) \right) \\
+&amp;amp;= \sum_{i=1}^\infty a_i \lambda_i \phi_i(x) \\
+p_{t+1}(x) = (\mathcal{Q} \circ p)(x) &amp;amp;= \sum_{i=1}^\infty \lambda_i \langle p | \phi \rangle_{\mu^{-1}} \phi(x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This is important. You should understand each of the terms in this
+equation, and concept of a projection onto the eigenbasis. Question:
+what is the corresponding equation for
+$\mathcal{Q} \circ \mathcal{Q} \circ p$? How would you do the spectral
+decomposition of $\mathcal{T}$?&lt;/p&gt;
+&lt;h3&gt;Timescales&lt;/h3&gt;
+&lt;p&gt;Let’s say we start from an almost-pure state,
+$p_0(x) = \mu(x) + \phi_j(x)$. What would $p_{t}$ look like for large
+$t$ later?&lt;/p&gt;
+&lt;p&gt;We apply the propagator $t$ times to $p_0$. The operator is linear, so
+we consider it acting on each term individually. Because $\mu$ is an
+eigenfunction with unit eigenvalue, it sails through application of the
+propagator unscathed. But in each step, $\phi_j$ gets multiplied by
+$\lambda_j$ when we apply $\mathcal{Q}$, so we get&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p_{t}(x) = \mu(x) + \lambda_j^t \phi_j(x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Remember $\lambda$ is between -1 and 1, and so this equation is telling
+us how quickly the distribution gets &lt;em&gt;damped&lt;/em&gt; to equilibrium. It’s
+always going to happen, since $\lambda_i^t \rightarrow 0$ as
+$t \rightarrow \infty$, but the bigger eigenvalues will last longer. If
+the molecular system as $m$ metastable states, the propagator is going
+to have $m-1$ eigenvalues that are very very close to 1, so these will
+be the only ones that don’t get damped too much for moderate to long
+$t$, while the rest that are closer to zero will get driven to zero more
+quickly by these powers of $t$.&lt;/p&gt;
+&lt;p&gt;If you focus your attention on positive eigenvalues, define the time
+constant, $\tau_i$ so that&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\lambda_i = e^{-1/\tau_i}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Then, we can write this expression for $p_t(x)$ so that we see the
+concept of exponential decay with a certain time constant more clearly.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+p_{t}(x) = \mu(x) + e^{-t/\tau_i} \phi_j(x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;So each of these eigenfunctions is like a functional perturbation away
+from equilibrium, and they all decay their way to zero, but at different
+exponential time constants. In this simple example our initial
+distribution was only “perturbed” from equilibrium along 1 direction,
+that’s why we only had one term.&lt;/p&gt;
+&lt;h3&gt;Experiments&lt;/h3&gt;
+&lt;p&gt;Consider an idealized pump-probe experiment that does the following.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;First, preparate an ensemble in some non-equilibrium initial
+    distribution, $p_0(x)$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Start the “clock”, and measure, as a function of time, the evolution
+    of some property of the system as it relaxes back towards
+    equilibrium.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Call the experimental observable $f(x) : \Omega \rightarrow \mathbb{R}$.
+It basically reports on the current state of the system. This might be a
+variable like the distance between two atoms in the system or the IR
+frequencies or something.&lt;/p&gt;
+&lt;p&gt;We can write down an expression for the measured signal $f_t$,
+explicitly in terms of the eigenfunctions of $\mathcal{Q}$ and the
+associated timescales.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+f_t &amp;amp;= \langle f \,|\, p_t \rangle \\
+&amp;amp;= \langle f | \mathcal{Q}^{t} \circ p_0 \rangle \\
+&amp;amp;= \left \langle f \middle | \sum_{i=1}^\infty e^{-t/\tau_i} \langle p_0 | \phi_i \rangle_{\mu^{-1 }} \phi_i  \right\rangle \\
+&amp;amp;= \sum_{i=1}^\infty e^{-t/\tau_i}  \left \langle p_0 | \phi_i \right \rangle_{\mu^{-1}} \left \langle f | \phi_i \right \rangle\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This is kind of an important result, because of the specificity of the
+functional form and the fact that the setup is so general. The only
+time-dependent term here is the exponential. So this is called
+multi-exponential kinetics. All pump-probe experiments like this should
+have this signature. Each eigenfunction contribute a term to the
+observed signal, with an amplitude that contains terms which measure&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;How much of the initial distribution is along this eigenfunction?&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;How strongly does this eigenfunction couple to the observable?&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Correlation Functions&lt;/h3&gt;
+&lt;p&gt;Let’s say we have some arbitrary scalar observable
+$f(X_t) : \Omega \rightarrow \mathbb{R}$, and we want to know how
+rapidly this measurement changes over time. Assume that $f$ has been
+shifted and scaled so that it has mean zero and variance 1.&lt;/p&gt;
+&lt;p&gt;The 1-step autocorrelation of any zero-mean unit-variance scalar
+timeseries is defined as&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\text{acf}(f) = \mathbb{E}\left[ f(x_t) \cdot f(x_{t+1}) \right]\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This average over time can be related to an average over space (ergodic
+theorem), so we can also calculate this quantity from the propagator /
+transfer operator.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{E}\left[ f_{t} \cdot f_{t+1} \right] = \int_{\Omega \times \Omega} dx dy\; \mu(x) \; p(x, y) f(x) f(y)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Because this is an expectation value we take over pairs of structures
+separated by 1 timestep. So the first structure, $X_t$, is distributed
+according to the equilibrium distribution – thats $\mu(x)$ – and
+$p(x,y)$ is the conditional distribution of the structure at 1 step
+ahead, given the one at time $t$.&lt;/p&gt;
+&lt;p&gt;Now, convince yourself that this expectation value can be written in
+terms of operators and inner products as&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{E}\left[ f_{t} \cdot f_{t+1} \right]  = \langle f | \mathcal{T} \circ f \rangle_\mu \label{eq:corr}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;When you check this, make sure we’re not missing any factors of $\mu$.
+They’re very easy to lose.&lt;/p&gt;
+&lt;p&gt;Once you’re satisfied with that, expand $f$ in the $\psi$ basis, and use
+this basis expansion to express the autocorrelation function&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+f = \sum_{i=1}^\infty a_i \psi_i\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;You can rewrite the autocorrelation function as&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{E}\left[ f_{t} \cdot f_{t+1} \right] &amp;amp;= \langle f | \mathcal{T} | f \rangle_{\mu} \\
+&amp;amp;= \left \langle \sum_{i=2}^\infty a_i \psi_i \middle|  \mathcal{T} \middle| \sum_{i=2}^\infty a_i \psi_i \right \rangle_{\mu} \\
+&amp;amp;= \sum_{i=1} \lambda_i a_i^2
+\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;If $f$ is equal to some particular $\psi_j$ (i.e. $a_j = 1$ and all
+other $a_i=0$), then this implies that the autocorrelation function of
+$f$ is just equal to its corresponding eigenvalue.&lt;/p&gt;
+&lt;h3&gt;Variational Theorem&lt;/h3&gt;
+&lt;p&gt;Because we asserted before that the signal has unit variance, we have
+the following normalization condition of the function $f$. Basically,
+because the eigenfunctions are normalized, if the signal has variance 1
+then the expansion coefficients $a$ need to be scaled properly to make
+this true. The property is&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+1 = \text{Var}\left[f(x_t)\right] \\
+&amp;amp;= \int_\Omega \mu(x) f(x)^2 = \langle f | f \rangle_{\mu} \\
+&amp;amp;= \left \langle \sum_{i=1}^\infty a_i \psi_i  \middle | \sum_{j=1}^\infty a_j \psi_j \right \rangle_{\mu} \\
+&amp;amp;= \sum_{i=2}^\infty a_i^2\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Do you see why the last step is true? It requires the linearity of the
+inner products to pull out the summations and then the fact that all of
+the terms with $i \neq j$ are zero because of the orthonormality of the
+eigenfunctions.&lt;/p&gt;
+&lt;p&gt;Recall also that we assumed $f$ had zero mean. This means that $a_1$
+must be zero, because the first transfer operator eigenfunction is
+$\psi_1(x) \equiv \phi_1(x)/\mu(x) = \mu(x)/\mu(x) = 1$. So for this
+function’s expansion, $a_1=1$ so we can just start the sum at 2.&lt;/p&gt;
+&lt;p&gt;Also, we know all the eigenvalues $\lambda_2, \lambda_3, \ldots$ can be
+no larger than $\lambda_2$, since they’re ordered and we put them in
+decreasing order (maybe we didn’t specify that before, but we do now).
+So our expression for the correlation function from before is bounded.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{E}\left[ f_{t} \cdot f_{t+1} \right] &amp;amp;= \sum_{i=2} \lambda_i a_i^2 \\
+&amp;amp;\leq \sum_{i=2} \lambda_2 a_i^2 \\
+&amp;amp;\leq \lambda_2 \left( \sum_{i=2} a_i^2 \right) \\
+&amp;amp;\leq \lambda_2\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This is a pretty important equation. It says that the autocorrelation
+function of any possible observable is bounded by the eigenvalue. And
+the function with the largest autocorrelation constant &lt;em&gt;is&lt;/em&gt; the leading
+eigenfunction.&lt;/p&gt;
+&lt;p&gt;TICA is just the obvious algorithm to exploit this. You can try to
+approximate the eigenfunction by varying a linear &lt;em&gt;ansatz&lt;/em&gt; function to
+try to maximize this expression.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\psi_2  = argmax_f\; \mathbb{E}&amp;amp;\left[ f_{t} \cdot f_{t+1} \right] \\\\
+\text{such that}&amp;amp; \\
+\mathbb{E}[f(x_t)] &amp;amp;= 0, \\
+\text{Var}[f(x_t)] &amp;amp;= 1\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;The higher you get this objective, the closer you are to $\psi_2$. This
+is basically the same idea as in quantum chemistry where you vary the
+expansion coefficients of an ansatz wavefunction to minimize the energy.
+The difference is just that our variational theorem bounds the
+autocorrelation from above, whereas the one in quantum chemistry bounds
+the energy from below.&lt;/p&gt;
+&lt;h3&gt;Markov State Models&lt;/h3&gt;
+&lt;p&gt;A Markov state model is a &lt;em&gt;model&lt;/em&gt; for the full dynamics where we
+partition the space into a set of finite states the jump process of the
+observed trajectory projected onto these discrete states. Although
+molecular dynamics in full continuous phase space $\Omega$ is Markovian
+by construction, the dynamics of any projection of $X_t$ is generally
+not Markovian.&lt;/p&gt;
+&lt;p&gt;Assume you have some states $S_i$ that are non-overlapping and partition
+the phase space. Associated with each state, $S_i$ define a function
+(alert: this is a clever choice with a special weighting that is going
+to turn out to be very convenient...)&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\chi_i = \frac{1}{\sqrt{\pi_i}} \mathbf{1}_{S_i}(x) = \begin{cases}
+    \frac{1}{\sqrt{\pi_i}} &amp;amp; x \in S_i \\
+    0 &amp;amp; x \notin S_i
+\end{cases}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;where $\pi_i$ is the stationary weight of $S_i$,&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\pi_i = \int_{x\in S_i} dx\; \mu(x)\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Now, just for kicks, lets see if we can come up with some simple or
+physically meaningful expression for
+$\langle \chi_j | \mathcal{T} \circ \chi_i \rangle_\mu$ that we could
+actually estimate from many short MD trajectories.&lt;/p&gt;
+&lt;p&gt;Why did I pick that expression to try to calculate? Well, implies that
+these are the type of matrix elements that are related to the
+correlation function that we might want to maximize.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+C_{ij} &amp;amp;= \langle \chi_j | \mathcal{T} \circ \chi_i \rangle_\mu \\
+&amp;amp;= \int_{\Omega \times \Omega} dx dy\; \chi_j(y) \mu(x) p(x,y) \chi_i(x) \\
+&amp;amp;= \int_{{x \in S_i \times y \in S_j}} dx dy\; \frac{1}{\sqrt{\pi_i \pi_j}} \mu(x) p(x, y) \\
+&amp;amp;= \frac{1}{\sqrt{\pi_i \pi_j}} \mathbb{P}\left[ X_{t+1} \in S_j \text{ and } X_t \in S_i\right] \\
+&amp;amp;= \sqrt{\frac{\pi_i}{\pi_j}} \cdot \mathbb{P}(X_{t+1} \in S_j | X_t \in S_i) \\
+&amp;amp;= \sqrt{\frac{\pi_i}{\pi_j}} \cdot T_{ij}\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;We can re-write this as a matrix expression for the whole matrix $C$
+with two diagonal matrices for the factors of $\pi$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+C = D(\pi^{1/2}) \; T \; D(\pi^{-1/2})\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;We want to do a variational optimization of some arbitrary function
+$f(x) = \sum_i^N a_i \chi_i(x)$. When we maximize the correlation
+function of $f$ with respect to the expansion coefficient’s we’ll find
+some “optimal” coefficients $a^*$, and this will yield an estimator for
+the the transfer operator’s $\psi_2$:&lt;/p&gt;
+&lt;p&gt;
+$$\begin{aligned}
+\psi_2 \approx \tilde{\psi}_2 = \sum_{i=1}^N a^*_i \chi_i\end{aligned}$$
+&lt;/p&gt;
+
+&lt;p&gt;We’re still going to need that $f$ have unit variance.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+1 = \mathbb{E}(f^2) = \langle f | f \rangle_\mu = \left\langle \sum_{i=1}^N a_i \chi_i \middle| \sum_{j=1}^N a_j \chi_j \right \rangle_\mu = \sum a_i^2\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;The $\chi$ aren’t eigenfunctions or anything special, but the reason
+this comes out so simply is that in any place where $\chi_i$ is nonzero,
+$\chi_j$ &lt;em&gt;is&lt;/em&gt; zero because they’re defined based on non-overlapping
+states. And for $i=j$,
+$\langle \chi_i | \chi_i \rangle_\mu = \int_{S_i} dx \; \mu(x) \pi_i^{-1} = 1$.
+So that means that $a$ needs to be unit norm.&lt;/p&gt;
+&lt;p&gt;Okay, now compute the correlation function of $f$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+\mathbb{E}\left[ f_{t} \cdot f_{t+1} \right]  &amp;amp;= \langle f | \mathcal{T} \circ f \rangle_\mu \\
+&amp;amp;= \left \langle  \sum_i^N a_i \chi_i \middle | \mathcal{T} \circ \sum_i^N a_i \chi_i \right \rangle_{\mu} \\
+&amp;amp;= \sum_{ij} a_i a_j \langle \chi_j | \mathcal{T} \circ \chi_i \rangle_\mu \\
+&amp;amp;= \sum_{ij} a_i a_j C_{ij} = a^T C a\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Now maximize this as a function of $a$, remembering the constraint that
+$a$ be unit norm. That defines the following optimization problem.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+argmax_a a^T C a \\
+\text{ s.t. } a^T a = 1\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;This is actually a really standard problem. This functional form is
+called the Rayleigh quotient. The unique maximizer is the first
+eigenvector of $C$, and the value of the objective at the maximum is the
+eigenvalue. To see why, just assume that $a$ is an eigenvector. Then,
+$C a=\lambda a$, so you can see that the value of the objective would be
+$\lambda$. And so the maximum value of that optimization problem is
+given by the eigenvector of $C$ associated with the largest eigenvalue.&lt;/p&gt;
+&lt;p&gt;So we know that the optimized $a^*$ is the dominant eigenvector,&lt;/p&gt;
+&lt;p&gt;
+$$\begin{aligned}
+    C a^*=\lambda a^*\end{aligned}$$
+&lt;/p&gt;
+
+&lt;p&gt;Recall that we can write $C$ in terms of the transition probability
+matrix $T$. Plugging that in to the eigenvalue equation for $C$, we get&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+D(\pi^{1/2}) \; T \; D(\pi^{-1/2}) a = \lambda a\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Now left-multiply both sides by $D(\pi^{-1/2})$, giving&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+T \; D(\pi^{-1/2}) a = \lambda D(\pi^{-1/2}) a\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Reading this off, it is an eigenvalue/eigenvector equation for $T$. We
+can see that $v \equiv D(\pi^{-1/2}) a$ must be an eigenvector of of
+$T$, with eigenvalue $\lambda$. So if you know $v$ (because you ran
+MSMBuilder/EMMA to estimate the transition matrix $T$ from a trajectory
+and found the largest eigenvector of that matrix), then you also know
+the elements of $a$.&lt;/p&gt;
+&lt;p&gt;$$\begin{aligned}
+a_i^* = \sqrt{\pi} v_i\end{aligned}$$&lt;/p&gt;
+&lt;p&gt;Okay, we’re basically done now. Recall that the whole goal was to
+variationally optimize a function in this specific basis set of
+indicators,
+$$\psi_2 \approx \tilde{\psi}&lt;em i="1"&gt;2 = \sum&lt;/em&gt;^N a^*_i \chi_i,
+$$
+so as approximate the first eigenfunction of the transfer operator. And
+we used this specific basis set because the necessary matrix elements
+could be expressed as transition probabilities, so we actually have a
+way to compute everything by first computing $T$, then finding the
+largest eigenvector of $T$, and then scaling that eigenvector by
+$\sqrt{\pi}$ to get the optimized coefficients $a_i$.&lt;/p&gt;
+&lt;p&gt;So with this explicit expression for the $a_i$, we have&lt;/p&gt;
+&lt;p&gt;
+$$\begin{aligned}
+\tilde{\psi}_2 = \sum_{i=1}^N \sqrt{\pi} v_i \chi_i\end{aligned}$$
+&lt;/p&gt;
+
+&lt;p&gt;Plug in the definition of $\chi_i$ from before, and the square roots of
+$\pi_i$ cancel and you get&lt;/p&gt;
+&lt;p&gt;
+$$\begin{aligned}
+\tilde{\psi}_2 = \sum_{i=1}^N v_i \mathbf{1}_{S_i}(x)\end{aligned}$$
+&lt;/p&gt;
+
+&lt;h4&gt;Interpretation of the last equation&lt;/h4&gt;
+&lt;p&gt;Okay, this is the final answer. The whole point of this is to prove in a
+very rigorous way that the eigenvectors of a discrete-state MSM are the
+variationally-optimial approximations to the true eigenvectors of the
+continuous-state transfer operator. They are the best discrete
+approximation that you can make in the specific choice of basis, which
+is basically a sum of step functions.&lt;/p&gt;
+&lt;p&gt;You can interpret an discrete-state MSM as a way of estimating the
+dominant eigenfunctions of a continuous-space Markov transfer operator.
+And the eigenvectors you get can be interpreted as step-function-based
+approximations to these continuous operator eigenfunctions. Basically,
+it’s the same as the way you might make a histogram (built out of steps)
+to approximate some continuous probability distribution.&lt;/p&gt;
+&lt;h4&gt;Comparing Markov state models&lt;/h4&gt;
+&lt;p&gt;This also gives you a very rigorous way of comparing two different
+Markov models for the same stochastic process that use different state
+decompositions. Assuming that the amount of data is finite so you don’t
+have any problems with statistics, you &lt;em&gt;still&lt;/em&gt; make some error in
+approximating the continuous eigenfunctions with these step functions.
+And according to the interpretation of the variational theorem as the
+measure of the &lt;em&gt;quality&lt;/em&gt; of an ansatz eigenfunction, the state
+decomposition that leads to a Markov model with a larger leading
+dynamical eigenvalue is the better state decomposition.&lt;/p&gt;</content><category term="misc"></category><category term="Markov chains"></category><category term="MSMs"></category><category term="tICA"></category><category term="theory"></category><category term="protein dynamics"></category></entry><entry><title>Efficient maximum likelihood parameterization of continuous-time Markov processes</title><link href="https://rmcgibbo.org/posts/efficient-maximum-likelihood-parameterization-of-continuous-time-markov-processes/" rel="alternate"></link><published>2015-04-13T00:00:00-07:00</published><updated>2015-04-13T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2015-04-13:/posts/efficient-maximum-likelihood-parameterization-of-continuous-time-markov-processes/</id><content type="html">&lt;p&gt;This afternoon, I spoke on our recent work &lt;a href="http://arxiv.org/abs/1504.01804" title="Efficient maximum..."&gt;on arXiv&lt;/a&gt; on efficient
+estimation of continuous-time Markov processes (master equations) from
+discrete-time data. Check out the &lt;strong&gt;&lt;a href="../../static/rate-matrix-slides/"&gt;slide deck&lt;/a&gt;&lt;/strong&gt;!&lt;/p&gt;</content><category term="misc"></category><category term="talks"></category><category term="MSMs"></category><category term="protein dynamics"></category></entry><entry><title>Building a Conditional Random Fields Tagger for Academic Citations</title><link href="https://rmcgibbo.org/posts/building-a-conditional-random-fields-tagger-for-academic-citations/" rel="alternate"></link><published>2015-02-22T00:00:00-08:00</published><updated>2015-02-22T00:00:00-08:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2015-02-22:/posts/building-a-conditional-random-fields-tagger-for-academic-citations/</id><summary type="html">&lt;p&gt;Over the weekend, I built a system that identifies, parses and formats unstructured
+academic citations. The system is not running anymore, because I didn't want to pay for
+hosting, but the source code is still available on github.&lt;/p&gt;
+&lt;p&gt;It can take a raw string like
+&lt;i&gt;"Wang, L.-P.; Titov, A …&lt;/i&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;Over the weekend, I built a system that identifies, parses and formats unstructured
+academic citations. The system is not running anymore, because I didn't want to pay for
+hosting, but the source code is still available on github.&lt;/p&gt;
+&lt;p&gt;It can take a raw string like
+&lt;i&gt;"Wang, L.-P.; Titov, A.; McGibbon, R.; Liu, F.; Pande, V. S.; Martinez, T. J.
+Nature Chemistry 2014, 6, 1044-1048."&lt;/i&gt; and format it into a structured BibTeX
+record for example.&lt;/p&gt;
+&lt;p&gt;This is a description of how it works, and how you can build a similar system.
+All the code that implements this system is &lt;a href="https://github.com/rmcgibbo/reftagger"&gt;available on GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;1. Formulate the problem&lt;/h3&gt;
+&lt;p&gt;The first step is to properly formulate the problem that we want to solve.
+This problem seemed very similar to &lt;a href="http://en.wikipedia.org/wiki/Part-of-speech_tagging"&gt;part-of-speech tagging&lt;/a&gt;
+in computational linguistics, so I started there.&lt;/p&gt;
+&lt;p&gt;The first pre-processing step in our system will be to
+&lt;a href="http://en.wikipedia.org/wiki/Tokenization_(lexical_analysis)"&gt;tokenize&lt;/a&gt;
+the input query. Then we have a
+&lt;a href="http://en.wikipedia.org/wikipediai/Structured_prediction"&gt;structured prediction&lt;/a&gt;
+problem: given a vector of tokens, predict a tag or label associated with each token.&lt;/p&gt;
+&lt;p&gt;The tags for our system will be &lt;code&gt;{'givenname', 'surname', 'title', 'journal',
+'page_number', 'volume', 'year', 'issue', 'None'}&lt;/code&gt;. Each token needs to be
+assigned a label from this set.&lt;/p&gt;
+&lt;h3&gt;2. Find training data&lt;/h3&gt;
+&lt;p&gt;At this point, I guess you could decide to start building a big collection of
+regexes to parse all possible citation formats, but that's going
+to lead to a very brittle solution. And it would be no fun.&lt;/p&gt;
+&lt;p&gt;So instead we're going to need to acquire some training data: many unstructured
+citations with the proper tags. Each data point will be a tuple, &lt;code&gt;(tokens, tags)&lt;/code&gt;.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;CrossRef API.&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md"&gt;CrossRef REST API&lt;/a&gt;
+  is great for getting structured information about journal articles. In
+  particular, they have a &lt;code&gt;/sample&lt;/code&gt; API enpoint that returns random journal
+  articles with their DOI and metadata, which is perfect.&lt;/p&gt;
+&lt;p&gt;Given a DOI, the CrossRef API also provides endpoints to return styled
+  citations in many formats, such as MLA, Chicago, American Chemical Society, etc.&lt;/p&gt;
+&lt;p&gt;The challenge here is that, given the styled citation from CrossRef and
+  all of its metadata, we need to still tag every token. The right way to
+  do this, I think, would be a dynamic programming solution similar to
+  &lt;a href="http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm"&gt;Needleman–Wunsch&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Full text HTML and XML articles.&lt;/p&gt;
+&lt;p&gt;Many journals let you download articles in an HTML (or XML for PLOS) format,
+  and the markup for each reference that the paper cites is both styled
+  according to the journal's format, but also tagged. This perfect, although
+  you do need to write a slightly different scraper for each journal.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Using the two strategies above, I downloaded and tagged about 20,000 citations.
+The &lt;a href="http://www.crummy.com/software/BeautifulSoup/bs4/doc/"&gt;BeautifulSoup&lt;/a&gt; and
+&lt;a href="http://docs.python-requests.org/en/latest/"&gt;requests&lt;/a&gt; libraries made this a
+lot easier than it otherwise would have been.&lt;/p&gt;
+&lt;h3&gt;3. Extract features&lt;/h3&gt;
+&lt;p&gt;In part-of-speech tagging, the most important feature is just the word / token
+itself, although other features (such as whether the word is capitalized) have
+been shown to be useful. For academic citations, many of the tokens like authors'
+surnames and some of the technical words in article titles are very rare and
+diverse, so we need to be able to make accurate predictions about words that
+never appear in the training set.&lt;/p&gt;
+&lt;p&gt;The featurization is a good place to introduce auxiliary data. For example, the
+U.S. Census produces a list of all of the unique surnames that occurred in the
+2000 Census. Using a token's presence or absence in this list as a feature is a
+great way to introduce tailored prior information into the model, beyond what
+we could hope to capture in the training set.&lt;/p&gt;
+&lt;p&gt;Similarly, I also used a list of common given names obtained from the U.S. Social
+Security Administration, and a list of academic journals and their abbreviations
+downloaded from PubMed.&lt;/p&gt;
+&lt;p&gt;To help reason about rare words that appear elsewhere, such as in article titles,
+we can use &lt;a href="http://wordnet.princeton.edu/"&gt;WordNet&lt;/a&gt;. For each token longer than 4
+characters that appears in WordNet, I found the nearest WordNet hypernym that is
+among the most common 5,000 words in english, and used it as a feature. This
+accomplishes a kind of dimensionality reduction over word space that's sensitive
+to word meanings and their relationship.&lt;/p&gt;
+&lt;h3&gt;4. Train a model&lt;/h3&gt;
+&lt;p&gt;After reading a couple papers in the academic literature on POS tagging, I
+decided that the best class of models would be a Conditional Random Field (CRF).
+These models seem to get state-of-the-art or near state-of-the-art performance on
+POS tagging tasks, and equally importantly, there are a number of high quality
+open source implementations available, with reasonable documentation.&lt;/p&gt;
+&lt;p&gt;I chose &lt;a href="http://www.chokkan.org/software/crfsuite/"&gt;CRFsuite&lt;/a&gt; and the &lt;a href="http://python-crfsuite.readthedocs.org/en/latest/"&gt;python-crfsuite&lt;/a&gt;
+bindings, which are as simple as&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ pip install python-crfsuite
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Based on a 50-50 test train split, I found that overall performance sensitivity
+of the hyperparameter selection (L1 and L2 strengths, elastic-net regularization)
+was fairly low, so I didn't spend a lot of time tuning.&lt;/p&gt;
+&lt;p&gt;The per-tag accuracy of the system is about 99% on the training set and 98.5%
+on the test set.&lt;/p&gt;
+&lt;p&gt;I think there's still room to improve, but it's likely to come from more (and cleaner)
+training data!g&lt;/p&gt;</content><category term="misc"></category><category term="software"></category><category term="machine learning"></category><category term="web"></category><category term="citations"></category></entry><entry><title>What's new in MSMBuilder3!</title><link href="https://rmcgibbo.org/posts/whats-new-in-msmbuilder3/" rel="alternate"></link><published>2014-12-07T00:00:00-08:00</published><updated>2014-12-07T00:00:00-08:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-12-07:/posts/whats-new-in-msmbuilder3/</id><content type="html">&lt;p&gt;The long awaited beta of MSMBuilder3 is here! I put together a &lt;a href="../../static/whats-new-in-msmbuilder3/"&gt;short slide deck&lt;/a&gt;,
+which builds on some of Kyle Beauchamp slides, showing how the pieces fit together.&lt;/p&gt;</content><category term="misc"></category><category term="software"></category><category term="protein dynamics"></category><category term="MSMs"></category></entry><entry><title>Introducing Osprey</title><link href="https://rmcgibbo.org/posts/introducing-osprey/" rel="alternate"></link><published>2014-11-01T00:00:00-07:00</published><updated>2014-11-01T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-11-01:/posts/introducing-osprey/</id><summary type="html">&lt;p&gt;Last week, I started work on a new open source software project whose goal
+is to streamline hyperparameter optimization for machine learning algorithms.
+The tool is called &lt;strong&gt;osprey&lt;/strong&gt;, and it's available on &lt;a href="https://github.com/rmcgibbo/osprey"&gt;github&lt;/a&gt;,
+&lt;a href="https://pypi.python.org/pypi/osprey/"&gt;pypi&lt;/a&gt;, and &lt;a href="http://osprey.readthedocs.org/"&gt;readthedocs&lt;/a&gt;.
+It integrates closely with scikit-learn.&lt;/p&gt;
+&lt;p&gt;Osprey is designed to make hyperparameter optimization as easy …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Last week, I started work on a new open source software project whose goal
+is to streamline hyperparameter optimization for machine learning algorithms.
+The tool is called &lt;strong&gt;osprey&lt;/strong&gt;, and it's available on &lt;a href="https://github.com/rmcgibbo/osprey"&gt;github&lt;/a&gt;,
+&lt;a href="https://pypi.python.org/pypi/osprey/"&gt;pypi&lt;/a&gt;, and &lt;a href="http://osprey.readthedocs.org/"&gt;readthedocs&lt;/a&gt;.
+It integrates closely with scikit-learn.&lt;/p&gt;
+&lt;p&gt;Osprey is designed to make hyperparameter optimization as easy as possible to run,
+by optimizing the cross-validation performance of your model with respect to
+its hyperparameters using random search, or Bayesian methods via Gaussian
+processes or tree-structured Parzen estimators. Multiple osprey processes can
+run in parallel, to easily leverage cluster compute resources without needing to
+boot up any external server.&lt;/p&gt;
+&lt;p&gt;Take it for a spin, and let me know what you think!&lt;/p&gt;</content><category term="misc"></category><category term="machine learning"></category><category term="theory"></category><category term="cross validation"></category></entry><entry><title>Passwordless SSH with Kerberos</title><link href="https://rmcgibbo.org/posts/passwordless-ssh-with-kerberos/" rel="alternate"></link><published>2014-10-02T00:00:00-07:00</published><updated>2014-10-02T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-10-02:/posts/passwordless-ssh-with-kerberos/</id><summary type="html">&lt;p&gt;In research computing, passwordless SSH makes everything much more convenient,
+especially when your data and computations are split across an array of cluster
+resources.&lt;/p&gt;
+&lt;p&gt;For most clusters, this is &lt;a href="http://www.linuxproblem.org/art_9.html"&gt;really easy&lt;/a&gt;
+by exchanging public keys. For &lt;a href="http://en.wikipedia.org/wiki/Kerberos_(protocol)"&gt;Kerberos&lt;/a&gt;,
+it's a little more complex. Here are the steps I used.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Follow your …&lt;/li&gt;&lt;/ol&gt;</summary><content type="html">&lt;p&gt;In research computing, passwordless SSH makes everything much more convenient,
+especially when your data and computations are split across an array of cluster
+resources.&lt;/p&gt;
+&lt;p&gt;For most clusters, this is &lt;a href="http://www.linuxproblem.org/art_9.html"&gt;really easy&lt;/a&gt;
+by exchanging public keys. For &lt;a href="http://en.wikipedia.org/wiki/Kerberos_(protocol)"&gt;Kerberos&lt;/a&gt;,
+it's a little more complex. Here are the steps I used.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Follow your sysadmin's kerberos guide. At Stanford, I received a link to the
+   &lt;a href="http://sherlock.stanford.edu/mediawiki/index.php/SetupKerberos"&gt;following set of instructions&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The problem, now, is that that &lt;code&gt;kinit&lt;/code&gt; creates a kerberos ticket which only
+   authorizes login for a fixed amount of time (e.g. 12 hours), and running
+   &lt;code&gt;kinit&lt;/code&gt; seems to require reentering your password.&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;But you can get a kerberos ticket using a "keytab" file, which is a hashed
+   version of password that you can store locally. I ran the following, to
+   create a new keytab file in&lt;code&gt;$HOME/.kerberos.keytab&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ sudo apt-get install kstart   &lt;span class="c1"&gt;# (assuming you&amp;#39;re using a debian-based distro)&lt;/span&gt;
+
+$ &lt;span class="nb"&gt;cd&lt;/span&gt; &lt;span class="nv"&gt;$HOME&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; ktutil 
+ktutil:  addent -password &amp;lt;MY_USERNAME@DOMAIN.EDU&amp;gt; -k &lt;span class="m"&gt;1&lt;/span&gt; -e rc4-hmac
+usage: addent &lt;span class="o"&gt;(&lt;/span&gt;-key &lt;span class="p"&gt;|&lt;/span&gt; -password&lt;span class="o"&gt;)&lt;/span&gt; -p principal -k kvno -e enctype
+&amp;lt;MY_PASSWORD&amp;gt;
+ktutil:  wkt .kerberos.keytab
+ktutil:  quit
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Then I added the following line to my &lt;code&gt;.bashrc&lt;/code&gt;. This gets a new kerberos
+   ticket, using the keytab for authentication, every time I log in.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;/usr/bin/k5start -f $HOME/.kerberos.keytab&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/li&gt;
+&lt;/ol&gt;</content><category term="misc"></category><category term="linux"></category></entry><entry><title>Optimal Markov Models: Formulation &amp; Pursuit</title><link href="https://rmcgibbo.org/posts/optimal-markov-models-formulation-pursuit/" rel="alternate"></link><published>2014-10-01T00:00:00-07:00</published><updated>2014-10-01T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-10-01:/posts/optimal-markov-models-formulation-pursuit/</id><content type="html">&lt;p&gt;I spoke this afternoon about our recent work [&lt;a href="http://arxiv.org/abs/1407.8083" title="Variational cross.."&gt;on arXiv&lt;/a&gt;] on the
+parameterization and cross-validation of Markovian models of molecular
+kinetics. The talk focus on the theory for a variational formulation
+of low-rank approximations to the kinetics of reversible dynamical systems.
+Check out the &lt;strong&gt;&lt;a href="../../static/optimal-msms-presentation"&gt;slide deck&lt;/a&gt;&lt;/strong&gt;!&lt;/p&gt;</content><category term="misc"></category><category term="talks"></category><category term="MSMs"></category><category term="tICA"></category><category term="theory"></category><category term="cross validation"></category><category term="protein dynamics"></category></entry><entry><title>Deploying with Travis-CI and S3</title><link href="https://rmcgibbo.org/posts/deploying-with-travis-ci-and-s3/" rel="alternate"></link><published>2014-09-29T00:00:00-07:00</published><updated>2014-09-29T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-09-29:/posts/deploying-with-travis-ci-and-s3/</id><summary type="html">&lt;p&gt;&lt;a href="http://travis-ci.org"&gt;Travis-CI&lt;/a&gt; is &lt;em&gt;fantastic&lt;/em&gt; for testing software (continuous integration)
+during open-source development. Less widely known, I think is how useful it can
+be for deployment.&lt;/p&gt;
+&lt;p&gt;With travis-ci, you have full access (passwordless &lt;code&gt;sudo&lt;/code&gt;) access to a fresh
+Ubuntu virtual machine that runs automatically on every commit to your github
+repository. Sure …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;a href="http://travis-ci.org"&gt;Travis-CI&lt;/a&gt; is &lt;em&gt;fantastic&lt;/em&gt; for testing software (continuous integration)
+during open-source development. Less widely known, I think is how useful it can
+be for deployment.&lt;/p&gt;
+&lt;p&gt;With travis-ci, you have full access (passwordless &lt;code&gt;sudo&lt;/code&gt;) access to a fresh
+Ubuntu virtual machine that runs automatically on every commit to your github
+repository. Sure, you can use this to run your tests, but you can do a lot more
+as well.&lt;/p&gt;
+&lt;h3&gt;Generate this website!&lt;/h3&gt;
+&lt;p&gt;This site is built with &lt;a href="http://blog.getpelican.com/"&gt;Pelican&lt;/a&gt;, and deployed on Amazon S3. I use travis-ci
+to automate the deployment -- every commit to github triggers travis to rebuild
+the HTML/CSS/JS content and push it to S3. This completely automates the deployment
+workflow. To publish a new post, I just push to github. It's Heroku-like convenience
+for (basically) free. You can check out the
+&lt;a href="https://github.com/rmcgibbo/rmcgibbo.org"&gt;source code&lt;/a&gt; for this site to see how
+it works.&lt;/p&gt;
+&lt;h3&gt;Deploy documentation&lt;/h3&gt;
+&lt;p&gt;In &lt;a href="http://mdtraj.org"&gt;MDTraj&lt;/a&gt; and &lt;a href="http://openmm.org"&gt;OpenMM&lt;/a&gt; libraries, for example, our documentation is
+built directly from the source code using the Sphinx and Doxygen tools, which
+output HTML and PDF documents. Our travis-ci virtual machines, after running
+the tests, rebuild the documentation and deploy a versioned copy directly to
+Amazon S3 buckets which are configured as publicly accessible websites. No more
+worrying about the docs getting out of sync with the code -- they're updated
+automatically.&lt;/p&gt;
+&lt;h3&gt;Build binaries&lt;/h3&gt;
+&lt;p&gt;We also use travis, and its Windows cousin, &lt;a href="http://www.appveyor.com/"&gt;Appveyor CI&lt;/a&gt; to build binaries
+of released and development snapshots of MDTraj. We use the python &lt;a href="http://technicaldiscovery.blogspot.com/2013/12/why-i-promote-conda.html"&gt;conda package
+manager&lt;/a&gt; to build binaries for a large matrix of different versions of the
+dependencies, and then push the binaries directly to the &lt;a href="http://binstar.org/"&gt;binstar&lt;/a&gt; index
+so that users can &lt;code&gt;conda install&lt;/code&gt; them without needing to compile.&lt;/p&gt;
+&lt;p&gt;The one caveat here is that, for MDTraj, we still target the (very ancient)
+RHEL5, and  to avoid GLIBC incompatibles, we need to build our linux release
+binaries on a sufficiently old distro. The infrastructure running
+at Travis-CI is too new, unfortunately. But we still &lt;em&gt;do&lt;/em&gt; use for distributing
+binaries of the development snapshot, which are handy for downstream integration
+testing downstream.&lt;/p&gt;</content><category term="misc"></category><category term="software"></category><category term="web"></category><category term="travis"></category><category term="aws"></category></entry><entry><title>Cross-validating tICA and MSMs</title><link href="https://rmcgibbo.org/posts/cross-validating-tica-and-msms/" rel="alternate"></link><published>2014-09-28T00:00:00-07:00</published><updated>2014-09-28T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-09-28:/posts/cross-validating-tica-and-msms/</id><summary type="html">&lt;p&gt;Some of our new work at the intersection of chemical physics and machine
+learning on the construction of &lt;a href="http://dx.doi.org/10.1063/1.3565032" title="Prinz et a.l"&gt;Markov models&lt;/a&gt; is now out on arXiv and
+under review. The title of &lt;a href="http://arxiv.org/abs/1407.8083" title="Variational cross.."&gt;our manuscript&lt;/a&gt; is &lt;strong&gt;"Variational cross-validation of
+slow dynamical modes in molecular kinetics"&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The question that lead down this road …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Some of our new work at the intersection of chemical physics and machine
+learning on the construction of &lt;a href="http://dx.doi.org/10.1063/1.3565032" title="Prinz et a.l"&gt;Markov models&lt;/a&gt; is now out on arXiv and
+under review. The title of &lt;a href="http://arxiv.org/abs/1407.8083" title="Variational cross.."&gt;our manuscript&lt;/a&gt; is &lt;strong&gt;"Variational cross-validation of
+slow dynamical modes in molecular kinetics"&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The question that lead down this road was&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;"How do we perform cross-validation on tICA and MSMs (&lt;a href="http://dx.doi.org/10.1021/ct300878a" title="Schwnates tICA"&gt;3&lt;/a&gt;, &lt;a href="http://dx.doi.org/10.1063/1.4811489" title="Perez-Hernandex tICA"&gt;4&lt;/a&gt;, &lt;a href="http://dx.doi.org/10.1063/1.3565032" title="Prinz et a.l"&gt;1&lt;/a&gt;)?"&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;Brief digression: What's tICA?&lt;/h3&gt;
+&lt;p&gt;tICA is a linear dimensionality reduction method for multivariate
+timeseries data that seeks to find the most slowly decelerating linear
+functions of a set of input timeseries, $\{X_t\}$. You can see the papers
+for more detail, but the gist of it comes down to solving a generalized
+eigenvalue equation,
+$$
+C(\tau) v = \lambda \Sigma v,
+$$
+where $C(\tau)$ is the &lt;em&gt;time lagged correlation matrix&lt;/em&gt;, which is a matrix containing
+the average correlation of the $i$th component of the signal at time $t$ with
+the $j$th component of the signal at time $t+\tau$, and $\Sigma$ is the covariance --
+basically same idea, but without the time delay.&lt;/p&gt;
+&lt;p&gt;In our application domain, protein dynamics, the input signals $\{X_t\}$ are
+usually some pre-processed (featurized) projection of our real data. We know that
+there are slowly-decorrelating degrees of freedom (e.g. reaction coordinates)
+in our data, but since tICA is restricted to identifying linear projections,
+preprocessing via nonlinear featurizations increases the power of the method.&lt;/p&gt;
+&lt;h3&gt;Back to cross-validation&lt;/h3&gt;
+&lt;p&gt;The eigenvectors which come out, $v$, are learned parameters that are estimated
+subject to statistical noise. Empirically, it's obvious that some featurizations
+perform better than others, and that Tikhonov regularization on $\Sigma$ can be
+critical (i.e. adding some multiple of the identity to $\Sigma$). So we're
+definitely going to need some procedure for scoring the set of tICS generated
+from one training dataset on a new test dataset.&lt;/p&gt;
+&lt;h3&gt;Why isn't this obvious?&lt;/h3&gt;
+&lt;p&gt;As presented in the papers that introduce the method (&lt;a href="http://dx.doi.org/10.1021/ct300878a" title="Schwnates tICA"&gt;3&lt;/a&gt;, &lt;a href="http://dx.doi.org/10.1063/1.4811489" title="Perez-Hernandex tICA"&gt;4&lt;/a&gt;), solving the
+tICA problem is a stepwise procedure -- you get one tIC at a time by a stepwise
+maximization of a series of autocorrelation functions &lt;strong&gt;with mounting, data
+dependent orthogonality constraints&lt;/strong&gt;. The significance of this is that it's
+not obvious that there is any single unified objective function for the collection
+of $n&amp;gt;1$ tICs.&lt;/p&gt;
+&lt;p&gt;The problem is that during training, the tICs constructed such that
+$v_i^T \Sigma v_j = \delta_{ij}$. But since $\Sigma$ is estimated from data, if
+you try to go back and &lt;em&gt;score&lt;/em&gt; a set of tICs on new data, you need to reestimate
+$\Sigma$, at which point the tICs no longer orthogonal, which is essential.
+To quote from the paper.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;While [previous] formulation[s] involves the stepwise optimization
+individual &lt;em&gt;ansatz&lt;/em&gt; eigenfunctions with mounting orthogonality
+constraints, our approach arrives at the same result during training
+via the optimization of a single scalar functional of a collection of
+$m$ &lt;em&gt;ansatz&lt;/em&gt; eigenfunctions simultaneously. This formulation uniquely
+enables the evaluation of the proposed eigenfunctions
+on new data which was held out during the fitting step, which we show
+to be essential to avoid overfitting.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;So what's the solution?&lt;/h3&gt;
+&lt;p&gt;You'll have to check out &lt;a href="http://arxiv.org/abs/1407.8083" title="Variational cross.."&gt;the manuscript&lt;/a&gt; :) Or perhaps check back here
+for another post.&lt;/p&gt;</content><category term="misc"></category><category term="MSMs"></category><category term="tICA"></category><category term="theory"></category><category term="cross validation"></category><category term="protein dynamics"></category></entry><entry><title>New website!</title><link href="https://rmcgibbo.org/posts/new-website/" rel="alternate"></link><published>2014-09-28T00:00:00-07:00</published><updated>2014-09-28T00:00:00-07:00</updated><author><name>Robert T. McGibbon</name></author><id>tag:rmcgibbo.org,2014-09-28:/posts/new-website/</id><summary type="html">&lt;p&gt;This is my first post on this new website! I went ahead and purchased the
+domain &lt;a href="http://rmcgibbo.org"&gt;rmcgibbo.org&lt;/a&gt; to try to consolidate
+my material on the web.&lt;/p&gt;
+&lt;p&gt;The domain was registered through GoDaddy, and its DNS settings were configured
+through Amazon Route53. This site itself is simply static HTML/CSS …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This is my first post on this new website! I went ahead and purchased the
+domain &lt;a href="http://rmcgibbo.org"&gt;rmcgibbo.org&lt;/a&gt; to try to consolidate
+my material on the web.&lt;/p&gt;
+&lt;p&gt;The domain was registered through GoDaddy, and its DNS settings were configured
+through Amazon Route53. This site itself is simply static HTML/CSS/JS, and
+is generated using &lt;a href="http://blog.getpelican.com/"&gt;Pelican&lt;/a&gt;, a staticd
+site generator powered by Python.&lt;/p&gt;
+&lt;p&gt;Because the site is statically generated, it can be served cheaply (i.e.
+from just an S3 bucket). I can author the content in my standard editor in
+plain text (Markdown), and easily version control it. I chose Pelican because
+it was written in Python and licensed under the GNU AGPL, which means that
+I'll have the ability to customize any aspect of the site. I know that 
+Jake VanderPlas's &lt;a href="http://jakevdp.github.io/"&gt;blog&lt;/a&gt; is written
+using the same tools, and he's found some very cool ways to embed IPython
+notebooks into the Pelican blog, which is something that I'm very excited about.
+See &lt;a href="https://jakevdp.github.io/blog/2014/01/10/d3-plugins-truly-interactive/"&gt;
+this post&lt;/a&gt; for an example.&lt;/p&gt;</content><category term="misc"></category><category term="web"></category><category term="pelican"></category><category term="python"></category></entry></feed>
