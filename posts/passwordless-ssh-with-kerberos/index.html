@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../../theme/css/main.css">
   <meta name="author" content="Robert T. McGibbon">
-  <meta name="twitter:creator" content="@rmcgibbo">
+  <meta name="twitter:creator" content="">
   <!--[if IE]>
   <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
@@ -21,7 +21,6 @@
  <a href="/" class="logo " title="Goes to homepage" alt="logo">rmcgibbo</a>
  <ul id="topnav" class="topnav">
      <li><a href="/" >About</a><li>
-     <li><a href="/posts" class="active">Posts</a><li>
      <li><a href="/publications" >Publications</a><li>
 </ul>
 </nav></div>
@@ -52,21 +51,21 @@ it's a little more complex. Here are the steps I used.</p>
 <p>But you can get a kerberos ticket using a "keytab" file, which is a hashed
    version of password that you can store locally. I ran the following, to
    create a new keytab file in<code>$HOME/.kerberos.keytab</code>.</p>
-<div class="highlight"><pre><span></span><code>$ sudo apt-get install kstart   <span class="c1"># (assuming you&#39;re using a debian-based distro)</span>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>kstart<span class="w">   </span><span class="c1"># (assuming you&#39;re using a debian-based distro)</span>
 
-$ <span class="nb">cd</span> <span class="nv">$HOME</span> <span class="o">&amp;&amp;</span> ktutil 
-ktutil:  addent -password &lt;MY_USERNAME@DOMAIN.EDU&gt; -k <span class="m">1</span> -e rc4-hmac
-usage: addent <span class="o">(</span>-key <span class="p">|</span> -password<span class="o">)</span> -p principal -k kvno -e enctype
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>ktutil<span class="w"> </span>
+ktutil:<span class="w">  </span>addent<span class="w"> </span>-password<span class="w"> </span>&lt;MY_USERNAME@DOMAIN.EDU&gt;<span class="w"> </span>-k<span class="w"> </span><span class="m">1</span><span class="w"> </span>-e<span class="w"> </span>rc4-hmac
+usage:<span class="w"> </span>addent<span class="w"> </span><span class="o">(</span>-key<span class="w"> </span><span class="p">|</span><span class="w"> </span>-password<span class="o">)</span><span class="w"> </span>-p<span class="w"> </span>principal<span class="w"> </span>-k<span class="w"> </span>kvno<span class="w"> </span>-e<span class="w"> </span>enctype
 &lt;MY_PASSWORD&gt;
-ktutil:  wkt .kerberos.keytab
-ktutil:  quit
+ktutil:<span class="w">  </span>wkt<span class="w"> </span>.kerberos.keytab
+ktutil:<span class="w">  </span>quit
 </code></pre></div>
 
 </li>
 <li>
 <p>Then I added the following line to my <code>.bashrc</code>. This gets a new kerberos
    ticket, using the keytab for authentication, every time I log in.</p>
-<div class="highlight"><pre><span></span><code><span class="err">/usr/bin/k5start -f $HOME/.kerberos.keytab</span>
+<div class="highlight"><pre><span></span><code>/usr/bin/k5start -f $HOME/.kerberos.keytab
 </code></pre></div>
 
 </li>
@@ -99,7 +98,7 @@ ktutil:  quit
   <div class="footer_center">
     <ul id="footnav">
       <li><a href="/" title="Home">Home</a></li>
-      <li><a href="http://twitter.com/rmcgibbo">@rmcgibbo</a></li>
+      <li><a href="https://www.linkedin.com/in/robert-t-mcgibbon-64285398">@rmcgibbo</a></li>
     </ul>
     <a href="#" class="back_up" title="Back to the top"><i>&uarr;</i></a>
   </div>

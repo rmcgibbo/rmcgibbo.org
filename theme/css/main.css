@@ -566,6 +566,7 @@ a.logo {
     background-color: #666;
     padding: 8px 12px;
     color: #EEE;
+    background-size: 65px;
     background-image: url(../img/portrait.png);
     background-repeat: no-repeat;
     background-position: center center;
