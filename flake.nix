@@ -21,9 +21,6 @@
 
       devShells.default = pkgs.mkShell rec {
         name = "rmcgibbo.org";
-        #shellHook = ''
-        #  export PS1="\n(${name}) \[\033[1;32m\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\[\033[0m\]\n$ "
-        #'';
         buildInputs = with pkgs; with python3Packages; [
           isort
           mypy
